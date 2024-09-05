@@ -7,8 +7,6 @@ import path from "path";
 import pino from "express-pino-logger";
 import routes from "./routes";
 
-const { VoiceResponse } = require("twilio").twiml;
-
 const app = express();
 
 app.use(cors());
@@ -22,12 +20,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(pino());
 
-app.use(routes);
+app.use('/api', routes);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 // notFound
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const error = new Error('Not found');
 
   // @ts-ignore
@@ -37,7 +35,7 @@ app.use((req, res, next) => {
 });
 
 // catch all
-app.use((error, req, res, next) => {
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.status(error.status || 500)
   res.json({ error: error.message})
 });

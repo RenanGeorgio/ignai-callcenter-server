@@ -25,5 +25,10 @@ export const getToken = (request: Request, response: Response) => {
   accessToken.addGrant(voiceGrant);
 
   response.set('Content-Type', 'application/json');
-  response.send(JSON.stringify({ token: accessToken.toJwt() }));
+  response.send(JSON.stringify(
+    { 
+      identity: identity,
+      token: accessToken.toJwt() 
+    }
+  ));
 };

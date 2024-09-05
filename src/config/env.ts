@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const config = {
+  app: {
+    port: process.env.PORT || 3000,
+  },
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID,
     apiKey: process.env.TWILIO_API_KEY,
