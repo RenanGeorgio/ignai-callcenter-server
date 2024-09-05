@@ -1,6 +1,7 @@
-const twilio = require("twilio");
+import twilio from "twilio";
+
 const AccessToken = twilio.jwt.AccessToken;
-const { ChatGrant, VideoGrant, VoiceGrant } = AccessToken;
+const { ChatGrant, VoiceGrant } = AccessToken;
 
 const generateToken = config => {
   return new AccessToken(
@@ -10,7 +11,7 @@ const generateToken = config => {
   );
 };
 
-const chatToken = (identity, config) => {
+export const chatToken = (identity, config) => {
   const chatGrant = new ChatGrant({
     serviceSid: config.twilio.chatService
   });
@@ -20,22 +21,9 @@ const chatToken = (identity, config) => {
   return token;
 };
 
-const videoToken = (identity, room, config) => {
-  let videoGrant;
-  if (typeof room !== "undefined") {
-    videoGrant = new VideoGrant({ room });
-  } else {
-    videoGrant = new VideoGrant();
-  }
-  const token = generateToken(config);
-  token.addGrant(videoGrant);
-  token.identity = identity;
-  return token;
-};
-
-const voiceToken = (identity, config) => {
+export const voiceToken = (identity, config) => {
   let voiceGrant;
-  if (typeof config.twilio.outgoingApplicationSid !== "undefined") {
+  if (typeof config.twilio.outgoingApplicationSid !== 'undefined') {
     voiceGrant = new VoiceGrant({
       outgoingApplicationSid: config.twilio.outgoingApplicationSid,
       incomingAllow: config.twilio.incomingAllow
@@ -50,5 +38,3 @@ const voiceToken = (identity, config) => {
   token.identity = identity;
   return token;
 };
-
-module.exports = { chatToken, videoToken, voiceToken };

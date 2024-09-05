@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "es6",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "preserve",
+    "experimentalDecorators": true, 
+    "emitDecoratorMetadata": true,
+    "module": "commonjs",
+    // "rootDir": "./",
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "paths": {
+      "@controllers/*": ["controllers/*"],
+      "@helpers/*": ["helpers/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@models/*": ["models/*"],
+      "@modules/*": ["modules/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@core/*": ["core/*"],
+      "@database/*": ["database/*"]
+    },  
+    "typeRoots": ["node_modules/@types"],
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "noEmit": true, 
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+  },
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.json", "declarations.d.ts"]
+}
