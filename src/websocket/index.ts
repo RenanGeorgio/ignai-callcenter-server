@@ -1,4 +1,4 @@
-import { WebsocketUser } from "types";
+import { WebsocketUser } from "../types";
 import { io } from "../core/http";
 
 let users: WebsocketUser[] = [];

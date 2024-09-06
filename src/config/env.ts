@@ -4,7 +4,7 @@ dotenv.config();
 
 const config = {
   app: {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 6060,
   },
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID,

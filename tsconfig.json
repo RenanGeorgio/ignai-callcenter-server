@@ -1,31 +1,13 @@
 {
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "incremental": true,
-    "target": "es6",
-    "lib": ["dom", "dom.iterable", "esnext", "es6"],
-    "jsx": "preserve",
-    "experimentalDecorators": true, 
-    "emitDecoratorMetadata": true,
+    "target": "es2016", 
+    "lib": ["es6"],
     "module": "commonjs",
-    // "rootDir": "./",
-    "moduleResolution": "node",
-    "baseUrl": "./src",
-    "paths": {
-      "@controllers/*": ["controllers/*"],
-      "@helpers/*": ["helpers/*"],
-      "@middlewares/*": ["middlewares/*"],
-      "@models/*": ["models/*"],
-      "@modules/*": ["modules/*"],
-      "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"],
-      "@core/*": ["core/*"],
-      "@database/*": ["database/*"]
-    },  
-    "typeRoots": ["src/types/**/*", "node_modules/@types"],
+    "rootDir": "src",
+    "moduleResolution": "node", 
     "resolveJsonModule": true,
     "allowJs": true,
-    "noEmit": true, 
-    "isolatedModules": true,
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -33,7 +15,6 @@
     "strict": true,
     "noImplicitAny": false, 
     "skipLibCheck": true,
-  },
-  "exclude": ["node_modules"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.json", "declarations.d.ts", "src/**/*"],
+    "typeRoots": ["src/types/**/*", "node_modules/@types/**/*"]
+  }
 }
