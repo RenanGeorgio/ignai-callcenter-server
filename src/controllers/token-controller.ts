@@ -13,6 +13,9 @@ export const getToken = (request: Request, response: Response) => {
 
   const identity = request.body.identity ?? config.twilio?.agentId;
 
+  if (!accountSid || !apiKey || !apiSecret){
+    throw new Error("accountSid, apiKey or apiSecret not present.")
+  }
   const accessToken = new AccessToken(accountSid, apiKey, apiSecret, {
     identity,
   });
