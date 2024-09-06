@@ -1,23 +1,14 @@
 import { Router } from "express";
+import twilio from "twilio";
 
-const routes = Router();
+import { routes as ivrRoutes } from "./v1/ivr";
+import routes from "./v1/app";
 
-// Token
-import * as TokenController from "../controllers/token-controller";
+const router = Router();
 
-// Call
-import * as CallController from "../controllers/call-controller";
+router.use('/ivr', twilio.webhook({ validate: false }), ivrRoutes);
 
-// Server
-import Server from "../controllers/server";
-
-routes
-    // call
-    .post('/token', TokenController.getToken)
-    .post('/call', CallController.handleOutgoingCall)
-    .post('/incoming', CallController.handleIncomingCall)
-
-    // Test Server
-    .get('/server', Server.status)
-
-export default routes;
+export {
+  router as ivrRoutes,
+  routes as appRoutes
+};

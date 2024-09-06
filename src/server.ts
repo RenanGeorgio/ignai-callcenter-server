@@ -5,7 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import pino from "express-pino-logger";
-import routes from "./routes";
+import { appRoutes, ivrRoutes } from "./routes";
 
 const app = express();
 
@@ -20,7 +20,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(pino());
 
-app.use('/api', routes);
+// routes
+app.use(appRoutes);
+app.use(ivrRoutes);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
