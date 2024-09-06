@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { menu, planets, welcome } from "lib/ivr";
+import { menu, planets, welcome } from "../lib/ivr";
 
 export const goToMenu = (request: Request, response: Response) => {
   const { Digits } = request.body

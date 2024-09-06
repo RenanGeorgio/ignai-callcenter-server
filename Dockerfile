@@ -63,7 +63,7 @@ ENV EMAIL_HOST $ARG_EMAIL_HOST
 ENV EMAIL_PORT $ARG_EMAIL_PORT
 ENV EMAIL_USERNAME $ARG_EMAIL_USERNAME
 ENV EMAIL_PASSWORD $ARG_EMAIL_PASSWORD
-EXPOSE 8000
+EXPOSE 6060
 RUN apk add dumb-init git
 WORKDIR /usr/src/app
 COPY --chown=node:node --from=build /usr/src/app/build /usr/src/app/build
