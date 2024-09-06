@@ -1,11 +1,14 @@
 {
-  "include": ["src/**/*"],
   "compilerOptions": {
-    "target": "es2016", 
-    "lib": ["es6"],
+    "baseUrl": "src",
+    "target": "es2016",
+    "lib": ["esnext", "es6"],
+    "jsx": "preserve",
+    "experimentalDecorators": true, 
+    "emitDecoratorMetadata": true,
     "module": "commonjs",
-    "rootDir": "src",
-    "moduleResolution": "node", 
+    "rootDir": "./",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowJs": true,
     "outDir": "build",
@@ -15,6 +18,20 @@
     "strict": true,
     "noImplicitAny": false, 
     "skipLibCheck": true,
-    "typeRoots": ["src/types/**/*", "node_modules/@types/**/*"]
-  }
+    "paths": {
+      "@controllers/*": ["controllers/*"],
+      "@helpers/*": ["helpers/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@models/*": ["models/*"],
+      "@modules/*": ["modules/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@core/*": ["core/*"],
+      "@database/*": ["database/*"]
+    },
+    "incremental": true,  
+    "typeRoots": ["src/types/**/*", "node_modules/@types"],
+  },
+  "exclude": ["node_modules"],
+  "include": ["src", "declarations.d.ts"],
 }
