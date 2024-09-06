@@ -1,6 +1,7 @@
+import { WebsocketUser } from "types";
 import { io } from "../core/http";
 
-let users = [];
+let users: WebsocketUser[] = [];
 
 io.on('connection', async (socket) => {
   io.sockets.emit('users', users);

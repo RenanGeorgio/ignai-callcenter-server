@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  if_merged:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v4
+
+      - name: "Set up Docker Buildx"
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: "Build and push"
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - env:
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_API_KEY: ${{ secrets.TWILIO_API_KEY }}
+          TWILIO_API_SECRET: ${{ secrets.TWILIO_API_SECRET }}
+          TWILIO_TWIML_APP_SID: ${{ secrets.TWILIO_TWIML_APP_SID }}
+          TWILIO_ALLOW_INCOMING_CALLS: ${{ secrets.TWILIO_ALLOW_INCOMING_CALLS }}
+          FROM_NUMBER: ${{ secrets.FROM_NUMBER }}
+          AGENT_ID: ${{ secrets.AGENT_ID }}
+          MONGO_URL: ${{ secrets.MONGO_URL }}
+          USER_CONTROLL: ${{ secrets.USER_CONTROLL }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/ignai-callcenter-server:latest --build-arg ARG_="$NODE_ENV" --build-arg ARG_="$TWILIO_ACCOUNT_SID" --build-arg ARG_="$TWILIO_API_KEY" --build-arg ARG_="$TWILIO_API_SECRET" --build-arg ARG_="$TWILIO_TWIML_APP_SID" --build-arg ARG_="$TWILIO_ALLOW_INCOMING_CALLS" --build-arg ARG_="$FROM_NUMBER" --build-arg ARG_="$AGENT_ID" --build-arg ARG_="$MONGO_URL" --build-arg ARG_="$USER_CONTROLL" --build-arg ARG_="$EMAIL_HOST" --build-arg ARG_="$EMAIL_PORT" --build-arg ARG_="$EMAIL_USERNAME" --build-arg ARG_="$EMAIL_PASSWORD"
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/ignai-callcenter-server:latest
+
+      - name: "Deploy to Azure Web App"
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: "ignai-callcenter-server"
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/ignai-callcenter-server:latest
+          restart: true

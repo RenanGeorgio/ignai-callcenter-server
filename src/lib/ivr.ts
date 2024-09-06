@@ -5,15 +5,15 @@ export function welcome() {
 
   const gather = client.gather({
     action: '/ivr/menu',
-    numDigits: '1',
+    numDigits: 1,
     method: 'POST',
   });
 
   gather.say(
+    { loop: 3 },
     'Thanks for calling the E T Phone Home Service. ' +
     'Please press 1 for directions. ' +
-    'Press 2 for a list of planets to call.',
-    {loop: 3}
+    'Press 2 for a list of planets to call.'
   );
 
   return client.toString();
@@ -53,11 +53,11 @@ function giveExtractionPointInstructions() {
   const client = new VoiceResponse.twiml.VoiceResponse();
 
   client.say(
+    { voice: 'Polly.Amy', language: 'en-GB' },
     'To get to your extraction point, get on your bike and go down ' +
     'the street. Then Left down an alley. Avoid the police cars. Turn left ' +
     'into an unfinished housing development. Fly over the roadblock. Go ' +
-    'passed the moon. Soon after you will see your mother ship.',
-    {voice: 'Polly.Amy', language: 'en-GB'}
+    'passed the moon. Soon after you will see your mother ship.'
   );
 
   client.say(
@@ -79,15 +79,15 @@ function listPlanets() {
 
   const gather = client.gather({
     action: '/ivr/planets',
-    numDigits: '1',
+    numDigits: 1,
     method: 'POST',
   });
 
   gather.say(
+    { voice: 'Polly.Amy', language: 'en-GB', loop: 3 },
     'To call the planet Broh doe As O G, press 2. To call the planet DuhGo ' +
     'bah, press 3. To call an oober asteroid to your location, press 4. To ' +
-    'go back to the main menu, press the star key ',
-    {voice: 'Polly.Amy', language: 'en-GB', loop: 3}
+    'go back to the main menu, press the star key '
   );
 
   return client.toString();
@@ -100,10 +100,10 @@ function listPlanets() {
 function redirectWelcome() {
   const client = new VoiceResponse.twiml.VoiceResponse();
 
-  client.say('Returning to the main menu', {
+  client.say({
     voice: 'Polly.Amy',
     language: 'en-GB',
-  });
+  }, 'Returning to the main menu');
 
   client.redirect('/ivr/welcome');
 
