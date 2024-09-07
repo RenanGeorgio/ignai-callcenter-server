@@ -32,7 +32,7 @@
     "socket.io": "^4.4.0",
     "ts-node": "^10.9.1",
     "tsyringe": "^4.7.0",
-    "twilio": "^3.0.0-rc.17"
+    "twilio": "^5.3.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",

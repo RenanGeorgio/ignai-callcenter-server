@@ -1,19 +1,35 @@
-import VoiceResponse from "twilio";
+import twilio from "twilio";
 
 export function welcome() {
-  const client = new VoiceResponse.twiml.VoiceResponse();
+  const client = new twilio.twiml.VoiceResponse();
 
-  const gather = client.gather({
+  const action = client.gather({
     action: '/ivr/menu',
-    numDigits: 1,
+    language: 'pt-BR',
+    numDigits: 1, // TO-DO: colocar dimanico qd identificar cliente
+    timeout: 5, // default = 5
     method: 'POST',
+    actionOnEmptyResult: false,
   });
 
-  gather.say(
-    { loop: 3 },
+  action.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Camila', // Polly.Ricardo
+      loop: 3
+     },
     'Thanks for calling the E T Phone Home Service. ' +
     'Please press 1 for directions. ' +
     'Press 2 for a list of planets to call.'
+  );
+
+  client.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Ricardo',
+      loop: 1
+     },
+    'Não detectamos nenhum digito!'
   );
 
   return client.toString();
@@ -36,7 +52,7 @@ export function planets(digit: string) {
   };
 
   if (optionActions[digit]) {
-    const client = new VoiceResponse.twiml.VoiceResponse();
+    const client = new twilio.twiml.VoiceResponse();
     client.dial(optionActions[digit]);
 
     return client.toString();
@@ -50,7 +66,7 @@ export function planets(digit: string) {
  * @return {String}
  */
 function giveExtractionPointInstructions() {
-  const client = new VoiceResponse.twiml.VoiceResponse();
+  const client = new twilio.twiml.VoiceResponse();
 
   client.say(
     { voice: 'Polly.Amy', language: 'en-GB' },
@@ -75,7 +91,7 @@ function giveExtractionPointInstructions() {
  * @return {String}
  */
 function listPlanets() {
-  const client = new VoiceResponse.twiml.VoiceResponse();
+  const client = new twilio.twiml.VoiceResponse();
 
   const gather = client.gather({
     action: '/ivr/planets',
@@ -98,7 +114,7 @@ function listPlanets() {
  * @return {String}
  */
 function redirectWelcome() {
-  const client = new VoiceResponse.twiml.VoiceResponse();
+  const client = new twilio.twiml.VoiceResponse();
 
   client.say({
     voice: 'Polly.Amy',
