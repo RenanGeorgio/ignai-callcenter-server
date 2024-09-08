@@ -12,15 +12,16 @@ export function welcome() {
     actionOnEmptyResult: false,
   });
 
+  // TO-DO: Obter as falas atravez da identificação do cliente e puxando isso de um banco de dados
   action.say(
     { 
       language: 'pt-BR',
       voice: 'Polly.Camila', // Polly.Ricardo
       loop: 3
      },
-    'Thanks for calling the E T Phone Home Service. ' +
-    'Please press 1 for directions. ' +
-    'Press 2 for a list of planets to call.'
+    'Muito obrigado por ligar. ' +
+    'Por favor pressione 1 para receber direções. ' +
+    'Pressione 2 para obter uma lista de telefones de contato para ligar.'
   );
 
   client.say(
@@ -36,6 +37,7 @@ export function welcome() {
 };
 
 export function menu(digit: string) {
+  // TO-DO estudar abordagem para puxar isso do cliente
   const optionActions = {
     '1': giveExtractionPointInstructions,
     '2': listPlanets,
@@ -62,23 +64,32 @@ export function planets(digit: string) {
 };
 
 /**
- * Returns Twiml
+ * Retorna Twiml
  * @return {String}
  */
 function giveExtractionPointInstructions() {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(
-    { voice: 'Polly.Amy', language: 'en-GB' },
-    'To get to your extraction point, get on your bike and go down ' +
-    'the street. Then Left down an alley. Avoid the police cars. Turn left ' +
-    'into an unfinished housing development. Fly over the roadblock. Go ' +
-    'passed the moon. Soon after you will see your mother ship.'
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Ricardo',
+      loop: 1
+    },
+    'Para chegar ao seu ponto de extração, suba na bicicleta e desça ' +
+    'a rua. Então saiu por um beco. Evite os carros da polícia. Vire à esquerda ' +
+    'em um conjunto habitacional inacabado. Voe sobre o bloqueio. Ir ' +
+    'passou a lua. Logo depois você verá sua nave-mãe.'
   );
 
   client.say(
-    'Thank you for calling the ET Phone Home Service - the ' +
-    'adventurous alien\'s first choice in intergalactic travel'
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Ricardo',
+      loop: 1
+    },
+    'Obrigado por ligar para o ET Phone Home Service - o ' +
+    'A primeira escolha de um alienígena aventureiro em viagens intergalácticas'
   );
 
   client.hangup();
@@ -87,39 +98,50 @@ function giveExtractionPointInstructions() {
 }
 
 /**
- * Returns a TwiML to interact with the client
+ * Retorna uma TwiML para interagir com o cliente
  * @return {String}
  */
 function listPlanets() {
   const client = new twilio.twiml.VoiceResponse();
 
-  const gather = client.gather({
+  const action = client.gather({
     action: '/ivr/planets',
+    language: 'pt-BR',
     numDigits: 1,
+    timeout: 3,
     method: 'POST',
+    actionOnEmptyResult: false,
   });
 
-  gather.say(
-    { voice: 'Polly.Amy', language: 'en-GB', loop: 3 },
-    'To call the planet Broh doe As O G, press 2. To call the planet DuhGo ' +
-    'bah, press 3. To call an oober asteroid to your location, press 4. To ' +
-    'go back to the main menu, press the star key '
+  action.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Camila',
+      loop: 3
+     },
+    'Para chamar o planeta Broh doe As O G, pressione 2. Para chamar o planeta DuhGo ' +
+    'bah, pressione 3. Para chamar um asteróide oober para sua localização, pressione 4. Para ' +
+    'volte ao menu principal, pressione a tecla estrela '
   );
 
   return client.toString();
 }
 
 /**
- * Returns an xml with the redirect
+ * Retorna um xml com o redirecionamento
  * @return {String}
  */
 function redirectWelcome() {
   const client = new twilio.twiml.VoiceResponse();
 
-  client.say({
-    voice: 'Polly.Amy',
-    language: 'en-GB',
-  }, 'Returning to the main menu');
+  client.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Ricardo',
+      loop: 1
+     }, 
+    'Voltando ao menu principal'
+  );
 
   client.redirect('/ivr/welcome');
 
