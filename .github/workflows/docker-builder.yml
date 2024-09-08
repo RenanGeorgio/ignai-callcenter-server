@@ -37,6 +37,7 @@ jobs:
           TWILIO_API_SECRET: ${{ secrets.TWILIO_API_SECRET }}
           TWILIO_TWIML_APP_SID: ${{ secrets.TWILIO_TWIML_APP_SID }}
           TWILIO_ALLOW_INCOMING_CALLS: ${{ secrets.TWILIO_ALLOW_INCOMING_CALLS }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           FROM_NUMBER: ${{ secrets.FROM_NUMBER }}
           AGENT_ID: ${{ secrets.AGENT_ID }}
           MONGO_URL: ${{ secrets.MONGO_URL }}
@@ -46,7 +47,7 @@ jobs:
           EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/ignai-callcenter-server:latest --build-arg ARG_="$NODE_ENV" --build-arg ARG_="$TWILIO_ACCOUNT_SID" --build-arg ARG_="$TWILIO_API_KEY" --build-arg ARG_="$TWILIO_API_SECRET" --build-arg ARG_="$TWILIO_TWIML_APP_SID" --build-arg ARG_="$TWILIO_ALLOW_INCOMING_CALLS" --build-arg ARG_="$FROM_NUMBER" --build-arg ARG_="$AGENT_ID" --build-arg ARG_="$MONGO_URL" --build-arg ARG_="$USER_CONTROLL" --build-arg ARG_="$EMAIL_HOST" --build-arg ARG_="$EMAIL_PORT" --build-arg ARG_="$EMAIL_USERNAME" --build-arg ARG_="$EMAIL_PASSWORD"
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/ignai-callcenter-server:latest --build-arg ARG_="$NODE_ENV" --build-arg ARG_="$TWILIO_ACCOUNT_SID" --build-arg ARG_="$TWILIO_API_KEY" --build-arg ARG_="$TWILIO_API_SECRET" --build-arg ARG_="$TWILIO_TWIML_APP_SID" --build-arg ARG_="$TWILIO_ALLOW_INCOMING_CALLS" --build-arg ARG_="$TWILIO_AUTH_TOKEN" --build-arg ARG_="$FROM_NUMBER" --build-arg ARG_="$AGENT_ID" --build-arg ARG_="$MONGO_URL" --build-arg ARG_="$USER_CONTROLL" --build-arg ARG_="$EMAIL_HOST" --build-arg ARG_="$EMAIL_PORT" --build-arg ARG_="$EMAIL_USERNAME" --build-arg ARG_="$EMAIL_PASSWORD"
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/ignai-callcenter-server:latest
 
       - name: "Deploy to Azure Web App"
