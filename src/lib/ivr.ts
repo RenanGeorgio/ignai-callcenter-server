@@ -1,37 +1,43 @@
 import twilio from "twilio";
 
 export function welcome() {
+  // TO-DO: checkar se o usuario possui IVR (URA)
+  const hasIvr = true;
   const client = new twilio.twiml.VoiceResponse();
 
-  const action = client.gather({
-    action: '/ivr/menu',
-    language: 'pt-BR',
-    numDigits: 1, // TO-DO: colocar dimanico qd identificar cliente
-    timeout: 5, // default = 5
-    method: 'POST',
-    actionOnEmptyResult: false,
-  });
-
-  // TO-DO: Obter as falas atravez da identificação do cliente e puxando isso de um banco de dados
-  action.say(
-    { 
+  if (hasIvr) {
+    const action = client.gather({
+      action: '/menu',
       language: 'pt-BR',
-      voice: 'Polly.Camila', // Polly.Ricardo
-      loop: 3
-     },
-    'Muito obrigado por ligar. ' +
-    'Por favor pressione 1 para receber direções. ' +
-    'Pressione 2 para obter uma lista de telefones de contato para ligar.'
-  );
+      numDigits: 1, // TO-DO: colocar dimanico qd identificar cliente
+      timeout: 5, // default = 5
+      method: 'POST',
+      actionOnEmptyResult: false,
+    });
 
-  client.say(
-    { 
-      language: 'pt-BR',
-      voice: 'Polly.Ricardo',
-      loop: 1
-     },
-    'Não detectamos nenhum digito!'
-  );
+    // TO-DO: Obter as falas atravez da identificação do cliente e puxando isso de um banco de dados
+    action.say(
+      { 
+        language: 'pt-BR',
+        voice: 'Polly.Camila', // Polly.Ricardo
+        loop: 3
+      },
+      'Muito obrigado por ligar. ' +
+      'Por favor pressione 1 para receber direções. ' +
+      'Pressione 2 para obter uma lista de telefones de contato para ligar.'
+    );
+
+    client.say(
+      { 
+        language: 'pt-BR',
+        voice: 'Polly.Ricardo',
+        loop: 1
+      },
+      'Não detectamos nenhum digito!'
+    );
+  } else {
+    client.redirect('/incoming');
+  }
 
   return client.toString();
 };
@@ -105,7 +111,7 @@ function listPlanets() {
   const client = new twilio.twiml.VoiceResponse();
 
   const action = client.gather({
-    action: '/ivr/planets',
+    action: '/planets',
     language: 'pt-BR',
     numDigits: 1,
     timeout: 3,
@@ -143,7 +149,7 @@ function redirectWelcome() {
     'Voltando ao menu principal'
   );
 
-  client.redirect('/ivr/welcome');
+  client.redirect('/welcome');
 
   return client.toString();
 }
