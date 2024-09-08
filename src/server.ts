@@ -13,7 +13,7 @@ app.use(cors());
 app.options('*', cors());
 
 app.use(bodyParser.json({
-  verify: (req: any, res: any, buf: any) => {
+  verify: (req: any, res: Response, buf: any) => {
     req.rawBody = buf;
   }
 }));
