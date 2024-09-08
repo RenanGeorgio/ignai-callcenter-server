@@ -5,25 +5,30 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import pino from "express-pino-logger";
-import { appRoutes, ivrRoutes } from "./routes";
+import { routes } from "./routes";
 
 const app = express();
 
 app.use(cors());
 app.options('*', cors());
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+  verify: (req: Request, res: Response, buf: any) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(bodyParser.urlencoded( { extended : false }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(cookieParser());
 app.use(pino());
 
 // routes
-app.use(appRoutes);
-app.use(ivrRoutes);
+app.use(routes);
 
+// @ts-ignore
 app.use(express.static(path.join(__dirname, 'public')));
 
 // notFound
