@@ -4,6 +4,12 @@ declare module 'express' {
     }
 };
 
+declare namespace Express {
+    export interface Request {
+        rawBody: any;
+    }
+};
+
 declare module '*.json' {
     export const content: any;
 };
