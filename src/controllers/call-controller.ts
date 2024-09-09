@@ -58,3 +58,17 @@ export const makeCall = (request: Request, response: Response) => {
   
   response.status(202);
 };
+
+export const handleFinishCall = (request: Request, response: Response) => {
+  const client = new twilio.twiml.VoiceResponse();
+ 
+  client.say(
+    "Thank you for using Call Congress! " +
+    "Your voice makes a difference. Goodbye."
+  );
+
+  client.hangup();
+
+  response.set('Content-Type', 'text/xml');
+  response.send(response.toString());
+};

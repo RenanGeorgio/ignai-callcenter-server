@@ -24,6 +24,7 @@ routes
     .post('/token', TokenController.getToken)
     .post('/call', CallController.handleOutgoingCall)
     .post('/incoming', CallController.handleIncomingCall)
+    .post('/goodbye', CallController.handleFinishCall)
 
     // Test Server
     .get('/server', Server.status)
