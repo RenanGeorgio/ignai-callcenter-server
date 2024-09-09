@@ -28,6 +28,15 @@ export const getToken = (request: Request, response: Response) => {
 
   accessToken.addGrant(voiceGrant);
 
+  /*
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Content-Type": "application/json"
+  };
+        
+  response.setHeaders(headers);*/
   response.set('Content-Type', 'application/json');
   response.send(JSON.stringify(
     { 

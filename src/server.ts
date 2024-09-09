@@ -31,6 +31,17 @@ app.use(routes);
 // @ts-ignore
 app.use(express.static(path.join(__dirname, 'public')));
 
+/*
+app.use(flash());
+
+// middleware for flash message handling
+app.use(function(req, res, next){
+    res.locals.success = req.flash('success');
+    res.locals.errors = req.flash('errors');
+    next();
+});
+*/
+
 // notFound
 app.use((req: Request, res: Response, next: NextFunction) => {
   const error = new Error('Not found');

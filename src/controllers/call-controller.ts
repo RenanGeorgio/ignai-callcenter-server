@@ -24,6 +24,11 @@ export const handleIncomingCall = (request: Request, response: Response) => {
   const client = new VoiceResponse.twiml.VoiceResponse();
   const dial = client.dial({ callerId: request.body.From, answerOnBridge: true });
 
+  /*
+  print('incoming call')
+        caller = request.form['Caller']
+        dial = Dial(callerId=caller)
+        dial.client(twilio_number)*/
   dial.client('phil'); // puxar a identity
 
   response.set('Content-Type', 'text/xml');
@@ -42,6 +47,7 @@ export const makeCall = (request: Request, response: Response) => {
       twiml: "<Response><Say>Ahoy, World!</Say></Response>",
     });
   
+    // @ts-ignore
     console.log(call.sid);
   }
   
