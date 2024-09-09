@@ -5,7 +5,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import pino from "express-pino-logger";
+import twilio from "twilio";
 import { routes } from "./routes";
+import { sendSms } from "./lib/sms";
 
 const app = express();
 
@@ -24,6 +26,18 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 app.use(pino());
+
+app.all('/answer', (req: Request, res: Response) => {
+  const caller = req.body.From;
+  const twilioNumber = req.body.To;
+
+  sendSms(caller, twilioNumber);
+
+  const client = new twilio.twiml.VoiceResponse();
+ 
+  client.say('Obrigado por ligar! Acabamos de lhe enviar uma mensagem com uma pista.');
+  res.send(client.toString());
+});
 
 // routes
 app.use(routes);
