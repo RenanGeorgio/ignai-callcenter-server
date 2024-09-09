@@ -16,6 +16,7 @@ export const getToken = (request: Request, response: Response) => {
   if (!accountSid || !apiKey || !apiSecret){
     throw new Error("accountSid, apiKey or apiSecret not present.")
   }
+  
   const accessToken = new AccessToken(accountSid, apiKey, apiSecret, {
     identity,
   });
