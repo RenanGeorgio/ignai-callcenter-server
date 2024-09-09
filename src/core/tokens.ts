@@ -3,11 +3,11 @@ import twilio from "twilio";
 const AccessToken = twilio.jwt.AccessToken;
 const { ChatGrant, VoiceGrant } = AccessToken;
 
-const generateToken = config => {
-  return new AccessToken(
-    config.twilio.accountSid,
-    config.twilio.apiKey,
-    config.twilio.apiSecret
+const generateToken = (config, identity) => {
+  return new AccessToken(config.twilio.accountSid, config.twilio.apiKey, config.twilio.apiSecret, 
+    {
+      identity,
+    }
   );
 };
 
@@ -15,14 +15,17 @@ export const chatToken = (identity, config) => {
   const chatGrant = new ChatGrant({
     serviceSid: config.twilio.chatService
   });
-  const token = generateToken(config);
+
+  const token = generateToken(config, identity);
   token.addGrant(chatGrant);
-  token.identity = identity;
+  //token.identity = identity;
+
   return token;
 };
 
 export const voiceToken = (identity, config) => {
   let voiceGrant;
+
   if (typeof config.twilio.outgoingApplicationSid !== 'undefined') {
     voiceGrant = new VoiceGrant({
       outgoingApplicationSid: config.twilio.outgoingApplicationSid,
@@ -33,8 +36,10 @@ export const voiceToken = (identity, config) => {
       incomingAllow: config.twilio.incomingAllow
     });
   }
-  const token = generateToken(config);
+
+  const token = generateToken(config, identity);
   token.addGrant(voiceGrant);
-  token.identity = identity;
+  //token.identity = identity;
+
   return token;
 };
