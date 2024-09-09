@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import VoiceResponse from "twilio";
 import twilio from "twilio";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
@@ -9,7 +8,7 @@ export const handleOutgoingCall = (request: Request, response: Response) => {
 
   const callerId = config.twilio.callerId;
 
-  const client = new VoiceResponse.twiml.VoiceResponse();
+  const client = new twilio.twiml.VoiceResponse();
   const dial = client.dial({ callerId: callerId });
 
   //dial.number(To);
@@ -30,14 +29,9 @@ export const handleOutgoingCall = (request: Request, response: Response) => {
 };
 
 export const handleIncomingCall = (request: Request, response: Response) => {
-  const client = new VoiceResponse.twiml.VoiceResponse();
+  const client = new twilio.twiml.VoiceResponse();
   const dial = client.dial({ callerId: request.body.From, answerOnBridge: true });
 
-  /*
-  print('incoming call')
-        caller = request.form['Caller']
-        dial = Dial(callerId=caller)
-        dial.client(twilio_number)*/
   dial.client('phil'); // puxar a identity
 
   response.set('Content-Type', 'text/xml');
