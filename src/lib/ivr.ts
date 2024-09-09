@@ -24,7 +24,8 @@ export function welcome() {
       },
       'Muito obrigado por ligar. ' +
       'Por favor pressione 1 para receber direções. ' +
-      'Pressione 2 para obter uma lista de telefones de contato para ligar.'
+      'Pressione 2 para obter uma lista de telefones de contato para ligar.' +
+      'Pressione 3 para falar com um atendente. ' +
     );
 
     client.say(
@@ -47,6 +48,7 @@ export function menu(digit: string) {
   const optionActions = {
     '1': giveExtractionPointInstructions,
     '2': listPlanets,
+    '3': serviceAgent,
   };
 
   return (optionActions[digit]) ? optionActions[digit]() : redirectWelcome();
@@ -129,6 +131,27 @@ function listPlanets() {
     'bah, pressione 3. Para chamar um asteróide oober para sua localização, pressione 4. Para ' +
     'volte ao menu principal, pressione a tecla estrela '
   );
+
+  return client.toString();
+}
+
+/**
+ * Retorna um xml com o redirecionamento
+ * @return {String}
+ */
+function serviceAgent() {
+  const client = new twilio.twiml.VoiceResponse();
+
+  client.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Ricardo',
+      loop: 1
+     }, 
+    'Encaminhando para atendimento'
+  );
+
+  client.redirect('/incoming');
 
   return client.toString();
 }
