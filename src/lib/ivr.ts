@@ -25,7 +25,7 @@ export function welcome() {
       'Muito obrigado por ligar. ' +
       'Por favor pressione 1 para receber direções. ' +
       'Pressione 2 para obter uma lista de telefones de contato para ligar.' +
-      'Pressione 3 para falar com um atendente. ' +
+      'Pressione 3 para falar com um atendente. '
     );
 
     client.say(
