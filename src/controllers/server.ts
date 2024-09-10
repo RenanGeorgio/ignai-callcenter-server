@@ -1,4 +1,4 @@
-import config from "config/env";
+import config from "../config/env";
 import { AuthApi } from "../services";
 // import mongoose from "../database";
 import { Request, Response, NextFunction } from "express";
