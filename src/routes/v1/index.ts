@@ -16,9 +16,9 @@ import Server from "../../controllers/server";
 
 routes
     // ivr
-    .post('/welcome', twilio.webhook(config.twilio.authToken), IvrController.goToWelcome)
-    .post('/menu', twilio.webhook(config.twilio.authToken), IvrController.goToMenu)
-    .post('/planets', twilio.webhook(config.twilio.authToken), IvrController.goToPlanets)
+    .post('/welcome', twilio.webhook({ validate: false }), IvrController.goToWelcome)
+    .post('/menu', twilio.webhook({ validate: false }), IvrController.goToMenu)
+    .post('/planets', twilio.webhook({ validate: false }), IvrController.goToPlanets)
 
     // call
     .post('/token', TokenController.getToken)
