@@ -1,13 +1,11 @@
-{
+{  
+  "ts-node": { "files": true },
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "baseUrl": "src",
     "target": "es2016",
-    "lib": ["esnext", "es6"],
-    "jsx": "preserve",
-    "experimentalDecorators": true, 
-    "emitDecoratorMetadata": true,
+    "lib": ["es6"],
+    "rootDir": "src",
     "module": "commonjs",
-    "rootDir": "./",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowJs": true,
@@ -16,8 +14,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noImplicitAny": false, 
+    "noImplicitAny": true, 
     "skipLibCheck": true,
+    "baseUrl": "src",
     "paths": {
       "@controllers/*": ["controllers/*"],
       "@helpers/*": ["helpers/*"],
@@ -29,9 +28,6 @@
       "@core/*": ["core/*"],
       "@database/*": ["database/*"]
     },
-    "incremental": true,  
-    "typeRoots": ["src/types/**/*", "node_modules/@types"],
+    "typeRoots": ["src/types/**/*", "node_modules/@types/**/*"],
   },
-  "exclude": ["node_modules"],
-  "include": ["src", "declarations.d.ts"],
 }

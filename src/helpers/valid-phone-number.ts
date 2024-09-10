@@ -3,6 +3,6 @@
  * @param {Number | String} number
  * @return {Boolean}
  */
-export function isAValidPhoneNumber(number: string) {
+export function isAValidPhoneNumber(number: string): boolean {
   return /^[\d\+\-\(\) ]+$/.test(number);
 }
