@@ -1,3 +1,4 @@
+import config from "config/env";
 import { AuthApi } from "../services";
 // import mongoose from "../database";
 import { Request, Response, NextFunction } from "express";
@@ -8,12 +9,12 @@ export default {
             // const result = mongoose.connection.readyState;
             // if (result === 1){
 
-                const testeServer = await AuthApi('/test-server', {
-                    method: 'GET',
-                })
+                // const testeServer = await AuthApi('/test-server', {
+                //     method: 'GET',
+                // })
 
 
-                return res.status(200).send({ message: "Server is running !", testeServer });
+            return res.status(200).send({ message: "Server is running !", config });
             // }
             // else{
             //     return res.status(500).send({ message: "Database is not running !" });
