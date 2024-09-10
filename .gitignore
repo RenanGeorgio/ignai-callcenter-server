@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 # Remove build
-.build/
+build/
