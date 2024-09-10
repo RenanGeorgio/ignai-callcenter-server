@@ -1,6 +1,10 @@
-import mongoose from "mongoose";
+// import mongoose from 'mongoose';
 
-mongoose.connect(process.env.MONGO_URL as string);
-mongoose.Promise = global.Promise;
+// const url = process.env.MONGO_URL ? process.env.MONGO_URL.replace(/[\\"]/g, '') : "";
 
-export default mongoose;
+// (async () => {
+//     await mongoose.connect(url).then(() => { console.log("Database connected!") }).catch((err) => { console.log(err.message) });
+//     mongoose.Promise = global.Promise;
+// })();
+
+// export default mongoose;
