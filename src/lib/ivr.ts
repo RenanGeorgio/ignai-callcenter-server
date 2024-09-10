@@ -51,6 +51,7 @@ export function menu(digit: string) {
     '3': serviceAgent,
   };
 
+  // @ts-ignore
   return (optionActions[digit]) ? optionActions[digit]() : redirectWelcome();
 };
 
@@ -59,10 +60,13 @@ export function planets(digit: string) {
     '2': '+19295566487',
     '3': '+17262043675',
     '4': '+16513582243',
+
   };
 
+  // @ts-ignore
   if (optionActions[digit]) {
     const client = new twilio.twiml.VoiceResponse();
+    // @ts-ignore
     client.dial(optionActions[digit]);
 
     return client.toString();
@@ -75,7 +79,7 @@ export function planets(digit: string) {
  * Retorna Twiml
  * @return {String}
  */
-function giveExtractionPointInstructions() {
+function giveExtractionPointInstructions(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(
@@ -109,7 +113,7 @@ function giveExtractionPointInstructions() {
  * Retorna uma TwiML para interagir com o cliente
  * @return {String}
  */
-function listPlanets() {
+function listPlanets(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   const action = client.gather({
@@ -139,7 +143,7 @@ function listPlanets() {
  * Retorna um xml com o redirecionamento
  * @return {String}
  */
-function serviceAgent() {
+function serviceAgent(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(
@@ -160,7 +164,7 @@ function serviceAgent() {
  * Retorna um xml com o redirecionamento
  * @return {String}
  */
-function redirectWelcome() {
+function redirectWelcome(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(
