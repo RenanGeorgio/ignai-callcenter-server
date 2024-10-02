@@ -41,6 +41,8 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
           console.log(new_oringin)
           dial = client.dial({ callerId: new_oringin, answerOnBridge: true });
         } else {
+          // @ts-ignore
+          console.log('teste')
           dial = client.dial({ answerOnBridge: true });
         }
 
