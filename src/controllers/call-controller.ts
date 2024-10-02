@@ -12,9 +12,17 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log(body);
   try {
-    const { To } = body;
+    const { Called, Caller, From, To, Direction } = body;
+    // @ts-ignore
+    console.log(Called)
+    // @ts-ignore
+    console.log(Caller)
+    // @ts-ignore
+    console.log(From)
     // @ts-ignore
     console.log(To)
+    // @ts-ignore
+    console.log(Direction)
     const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
     // @ts-ignore
@@ -43,7 +51,6 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
 
         return client.toString();
       } else {
-        const { From } = body;
         if (From) {
           // @ts-ignore
           console.log(From)
