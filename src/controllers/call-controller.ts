@@ -11,13 +11,16 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   let dial: any = undefined;
   try {
     const { To } = body;
-
+    // @ts-ignore
+    console.log(To)
     const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
-
+    // @ts-ignore
+    console.log(callerId)
     if ((To != undefined) && (To != callerId)) {
       dial = client.dial({ callerId: callerId });
-
+      // @ts-ignore
+      console.log(dial)
       /*
       if (To) {
         const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
@@ -27,24 +30,36 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
       }
         */
       const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
+      // @ts-ignore
+      console.log(attr)
       dial[attr]({}, To);
     } else {
       if (hasIvr) {
+        // @ts-ignore
+        console.log('welcome')
         client.redirect('/welcome');
 
         return client.toString();
       } else {
         const { From } = body;
         if (From) {
+          // @ts-ignore
+          console.log(From)
           dial = client.dial({ callerId: body.From, answerOnBridge: true });
         } else {
+          // @ts-ignore
+          console.log('regular')
           dial = client.dial({ answerOnBridge: true });
         }
 
+        // @ts-ignore
+        console.log(callerId)
         dial.client(callerId); // puxar a identity
       }
     }
 
+    // @ts-ignore
+    console.log('respondendo')
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());
   }
