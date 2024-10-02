@@ -49,6 +49,11 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
         // @ts-ignore
         console.log(callerId)
         dial.client(callerId); // puxar a identity
+
+        // @ts-ignore
+        console.log('respondendo')
+        response.set('Content-Type', 'text/xml');
+        response.send(client.toString());
       }
     } else {
       dial = client.dial({ callerId: callerId });
@@ -65,12 +70,14 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
         console.log('support')
         dial.client({}, 'support_agent'); // TO-DO: ref -> browser call
       }
+
+      // @ts-ignore
+      console.log('respondendo')
+      response.set('Content-Type', 'text/xml');
+      response.send(client.toString());
     }
 
-    // @ts-ignore
-    console.log('respondendo')
-    response.set('Content-Type', 'text/xml');
-    response.send(client.toString());
+    response.status(202);
   }
   catch (error) {
     next(error);
