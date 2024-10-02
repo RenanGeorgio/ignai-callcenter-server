@@ -19,7 +19,7 @@ routes
     .post('/outgoing', CallController.handleOutgoingCall)
     .post('/incoming', CallController.handleIncomingCall)
     .post('/goodbye', CallController.handleFinishCall)
-    .post('/call', CallController.handleCall)
+    .post('/call', twilio.webhook({ validate: false }), CallController.handleCall)
 
     // ivr
     .post('/welcome', twilio.webhook({ validate: false }), IvrController.goToWelcome)

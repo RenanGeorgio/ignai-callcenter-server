@@ -21,18 +21,25 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
 
     if (Direction.toLowerCase() === 'inbound') {
       if (hasIvr) {
+        // @ts-ignore
+        console.log('welcome')
         client.redirect('/welcome');
         return client.toString();
       } else {
         const oringin = From | Caller
-        if (oringin) {
+        if ((!isNaN(oringin)) || (typeof oringin === 'number')) {
           // @ts-ignore
           console.log(oringin)
           dial = client.dial({ callerId: oringin, answerOnBridge: true });
         } else {
-          // @ts-ignore
-          console.log('regular')
-          dial = client.dial({ answerOnBridge: true });
+          if (isAValidPhoneNumber(oringin)) {
+            const new_oringin = Number(oringin);
+            dial = client.dial({ callerId: new_oringin, answerOnBridge: true });
+          } else {
+            // @ts-ignore
+            console.log('regular')
+            dial = client.dial({ answerOnBridge: true });
+          }
         }
 
         // @ts-ignore
