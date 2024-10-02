@@ -9,6 +9,8 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   const body = request.body;
 
   let dial: any = undefined;
+  // @ts-ignore
+  console.log(body);
   try {
     const { To } = body;
     // @ts-ignore
