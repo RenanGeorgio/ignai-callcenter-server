@@ -12,7 +12,7 @@ export const getToken = (request: Request, response: Response, next: NextFunctio
     const AccessToken = twilio.jwt.AccessToken;
     const VoiceGrant = AccessToken.VoiceGrant;
 
-    const identity = request.body.identity ?? config.twilio?.agentId;
+    const identity = request.body.identity ?? config.twilio?.callerId;
 
     if (!accountSid || !apiKey || !apiSecret) {
       throw new Error("accountSid, apiKey or apiSecret not present.")

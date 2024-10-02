@@ -1,6 +1,5 @@
 import { Router } from "express";
 import twilio from "twilio";
-import config from "../../config/env";
 
 const routes = Router();
 
@@ -15,16 +14,16 @@ import * as IvrController from "../../controllers/ivr-controller";
 import Server from "../../controllers/server";
 
 routes
-    // ivr
-    .post('/welcome', twilio.webhook({ validate: false }), IvrController.goToWelcome)
-    .post('/menu', twilio.webhook({ validate: false }), IvrController.goToMenu)
-    .post('/planets', twilio.webhook({ validate: false }), IvrController.goToPlanets)
-
     // call
     .post('/token', TokenController.getToken)
     .post('/call', CallController.handleOutgoingCall)
     .post('/incoming', CallController.handleIncomingCall)
     .post('/goodbye', CallController.handleFinishCall)
+
+    // ivr
+    .post('/welcome', twilio.webhook({ validate: false }), IvrController.goToWelcome)
+    .post('/menu', twilio.webhook({ validate: false }), IvrController.goToMenu)
+    .post('/planets', twilio.webhook({ validate: false }), IvrController.goToPlanets)
 
     // Test Server
     .get('/server', Server.status)
