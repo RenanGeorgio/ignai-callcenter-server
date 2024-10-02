@@ -18,24 +18,23 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
     const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
     // @ts-ignore
-    console.log(callerId)
+    console.log(callerId);
 
-    if (Direction.toLowerCase() === 'inbound') {
+    let new_oringin: string = "";
+
+    const oringin = From | Caller
+    if ((!isNaN(oringin)) || (typeof oringin === 'number')) {
+      new_oringin = oringin.toString();
+    } else {
+      new_oringin = oringin;
+    }
+
+    if ((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)){
       if (hasIvr) {
         // @ts-ignore
         console.log('welcome')
         response.send(welcome());
       } else {
-        let new_oringin: string = "";
-
-        const oringin = From | Caller
-        if ((!isNaN(oringin)) || (typeof oringin === 'number')) {
-          new_oringin = oringin.toString();
-        } else {
-          new_oringin = oringin;
-        }
-
-
         if (isAValidPhoneNumber(new_oringin)) {
           // @ts-ignore
           console.log(new_oringin)
