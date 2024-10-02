@@ -5,17 +5,18 @@ import config from "../config/env";
 
 
 export const handleCall = (request: Request, response: Response, next: NextFunction) => {
-  // TO-DO: checkar se o usuario possui IVR (URA)
-  const hasIvr = true;
+  const hasIvr = true; // TO-DO: checkar se o usuario possui IVR (URA)
+  const body = request.body;
 
+  let dial: any = undefined;
   try {
-    const { To } = request.body;
+    const { To } = body;
 
     const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
 
     if ((To != undefined) && (To != callerId)) {
-      const dial = client.dial({ callerId: callerId });
+      dial = client.dial({ callerId: callerId });
 
       /*
       if (To) {
@@ -33,7 +34,13 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
 
         return client.toString();
       } else {
-        const dial = client.dial({ callerId: request.body.From, answerOnBridge: true });
+        const { From } = body;
+        if (From) {
+          dial = client.dial({ callerId: body.From, answerOnBridge: true });
+        } else {
+          dial = client.dial({ answerOnBridge: true });
+        }
+
         dial.client(callerId); // puxar a identity
       }
     }

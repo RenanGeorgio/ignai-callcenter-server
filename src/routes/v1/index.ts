@@ -16,9 +16,10 @@ import Server from "../../controllers/server";
 routes
     // call
     .post('/token', TokenController.getToken)
-    .post('/call', CallController.handleOutgoingCall)
+    .post('/outgoing', CallController.handleOutgoingCall)
     .post('/incoming', CallController.handleIncomingCall)
     .post('/goodbye', CallController.handleFinishCall)
+    .post('/call', CallController.handleCall)
 
     // ivr
     .post('/welcome', twilio.webhook({ validate: false }), IvrController.goToWelcome)
