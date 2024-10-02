@@ -13,48 +13,22 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   console.log(body);
   try {
     const { Called, Caller, From, To, Direction } = body;
-    // @ts-ignore
-    console.log(Called)
-    // @ts-ignore
-    console.log(Caller)
-    // @ts-ignore
-    console.log(From)
-    // @ts-ignore
-    console.log(To)
-    // @ts-ignore
-    console.log(Direction)
+    
     const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
     // @ts-ignore
     console.log(callerId)
-    if ((To != undefined) && (To != callerId)) {
-      dial = client.dial({ callerId: callerId });
-      // @ts-ignore
-      console.log(dial)
-      /*
-      if (To) {
-        const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-        dial[attr]({}, To);
-      } else {
-        dial.client({}, "support_agent"); // TO-DO: ref -> browser call
-      }
-        */
-      const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-      // @ts-ignore
-      console.log(attr)
-      dial[attr]({}, To);
-    } else {
-      if (hasIvr) {
-        // @ts-ignore
-        console.log('welcome')
-        client.redirect('/welcome');
 
+    if (Direction.toLowerCase() === 'inbound') {
+      if (hasIvr) {
+        client.redirect('/welcome');
         return client.toString();
       } else {
-        if (From) {
+        const oringin = From | Caller
+        if (oringin) {
           // @ts-ignore
-          console.log(From)
-          dial = client.dial({ callerId: body.From, answerOnBridge: true });
+          console.log(oringin)
+          dial = client.dial({ callerId: oringin, answerOnBridge: true });
         } else {
           // @ts-ignore
           console.log('regular')
@@ -64,6 +38,21 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
         // @ts-ignore
         console.log(callerId)
         dial.client(callerId); // puxar a identity
+      }
+    } else {
+      dial = client.dial({ callerId: callerId });
+      // @ts-ignore
+      console.log(dial);
+
+      if ((To != undefined) && (To != callerId) && (To.length > 0)) {
+        // @ts-ignore
+        console.log(To)
+        const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
+        dial[attr]({}, To);
+      } else {
+        // @ts-ignore
+        console.log('support')
+        dial.client({}, 'support_agent'); // TO-DO: ref -> browser call
       }
     }
 
