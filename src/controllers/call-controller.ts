@@ -3,11 +3,61 @@ import twilio from "twilio";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
 
+
+export const handleCall = (request: Request, response: Response, next: NextFunction) => {
+  const hasIvr = true; // TO-DO: checkar se o usuario possui IVR (URA)
+  const body = request.body;
+
+  let dial: any = undefined;
+  try {
+    const { To } = body;
+
+    const callerId = config.twilio?.callerId;
+    const client = new twilio.twiml.VoiceResponse();
+
+    if ((To != undefined) && (To != callerId)) {
+      dial = client.dial({ callerId: callerId });
+
+      /*
+      if (To) {
+        const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
+        dial[attr]({}, To);
+      } else {
+        dial.client({}, "support_agent"); // TO-DO: ref -> browser call
+      }
+        */
+      const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
+      dial[attr]({}, To);
+    } else {
+      if (hasIvr) {
+        client.redirect('/welcome');
+
+        return client.toString();
+      } else {
+        const { From } = body;
+        if (From) {
+          dial = client.dial({ callerId: body.From, answerOnBridge: true });
+        } else {
+          dial = client.dial({ answerOnBridge: true });
+        }
+
+        dial.client(callerId); // puxar a identity
+      }
+    }
+
+    response.set('Content-Type', 'text/xml');
+    response.send(client.toString());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
 export const handleOutgoingCall = (request: Request, response: Response, next: NextFunction) => {
   try {
     const { To } = request.body;
 
-    const callerId = config.twilio.callerId;
+    const callerId = config.twilio?.callerId;
 
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: callerId });
