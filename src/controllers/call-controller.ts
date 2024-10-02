@@ -26,20 +26,22 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
         client.redirect('/welcome');
         return client.toString();
       } else {
+        let new_oringin: string = "";
+
         const oringin = From | Caller
         if ((!isNaN(oringin)) || (typeof oringin === 'number')) {
-          // @ts-ignore
-          console.log(oringin)
-          dial = client.dial({ callerId: oringin, answerOnBridge: true });
+          new_oringin = oringin.toString();
         } else {
-          if (isAValidPhoneNumber(oringin)) {
-            const new_oringin = Number(oringin);
-            dial = client.dial({ callerId: new_oringin, answerOnBridge: true });
-          } else {
-            // @ts-ignore
-            console.log('regular')
-            dial = client.dial({ answerOnBridge: true });
-          }
+          new_oringin = oringin;
+        }
+
+
+        if (isAValidPhoneNumber(new_oringin)) {
+          // @ts-ignore
+          console.log(new_oringin)
+          dial = client.dial({ callerId: new_oringin, answerOnBridge: true });
+        } else {
+          dial = client.dial({ answerOnBridge: true });
         }
 
         // @ts-ignore
