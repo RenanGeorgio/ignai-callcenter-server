@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
+import { welcome } from "../lib/ivr";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
 
@@ -23,8 +24,7 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
       if (hasIvr) {
         // @ts-ignore
         console.log('welcome')
-        client.redirect('/welcome');
-        return client.toString();
+        response.send(welcome());
       } else {
         let new_oringin: string = "";
 

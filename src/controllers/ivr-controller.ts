@@ -14,7 +14,6 @@ export const goToMenu = (request: Request, response: Response, next: NextFunctio
 
 export const goToWelcome = (request: Request, response: Response, next: NextFunction) => {
   try {
-    console.log(request)
     response.send(welcome());
   }
   catch (error) {

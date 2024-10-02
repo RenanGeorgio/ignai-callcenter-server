@@ -1,44 +1,38 @@
 import twilio from "twilio";
 
 export function welcome() {
-  // TO-DO: checkar se o usuario possui IVR (URA)
-  const hasIvr = true;
   const client = new twilio.twiml.VoiceResponse();
 
-  if (hasIvr) {
-    const action = client.gather({
-      action: '/menu',
+  const action = client.gather({
+    action: '/menu',
+    language: 'pt-BR',
+    numDigits: 1, // TO-DO: colocar dimanico qd identificar cliente
+    timeout: 5, // default = 5
+    method: 'POST',
+    actionOnEmptyResult: false,
+  });
+
+  // TO-DO: Obter as falas atravez da identificação do cliente e puxando isso de um banco de dados
+  action.say(
+    { 
       language: 'pt-BR',
-      numDigits: 1, // TO-DO: colocar dimanico qd identificar cliente
-      timeout: 5, // default = 5
-      method: 'POST',
-      actionOnEmptyResult: false,
-    });
+      voice: 'Polly.Camila', // Polly.Ricardo
+      loop: 3
+    },
+    'Muito obrigado por ligar. ' +
+    'Por favor pressione 1 para receber direções. ' +
+    'Pressione 2 para obter uma lista de telefones de contato para ligar.' +
+    'Pressione 3 para falar com um atendente. '
+  );
 
-    // TO-DO: Obter as falas atravez da identificação do cliente e puxando isso de um banco de dados
-    action.say(
-      { 
-        language: 'pt-BR',
-        voice: 'Polly.Camila', // Polly.Ricardo
-        loop: 3
-      },
-      'Muito obrigado por ligar. ' +
-      'Por favor pressione 1 para receber direções. ' +
-      'Pressione 2 para obter uma lista de telefones de contato para ligar.' +
-      'Pressione 3 para falar com um atendente. '
-    );
-
-    client.say(
-      { 
-        language: 'pt-BR',
-        voice: 'Polly.Ricardo',
-        loop: 1
-      },
-      'Não detectamos nenhum digito!'
-    );
-  } else {
-    client.redirect('/incoming');
-  }
+  client.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Ricardo',
+      loop: 1
+    },
+    'Não detectamos nenhum digito!'
+  );
 
   return client.toString();
 };
