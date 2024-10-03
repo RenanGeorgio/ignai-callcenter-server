@@ -17,7 +17,7 @@ routes
     // call
     .post('/token', TokenController.getToken)
     .post('/outgoing', CallController.handleOutgoingCall)
-    .post('/incoming', CallController.handleIncomingCall)
+    .post('/incoming', twilio.webhook({ validate: false }), CallController.handleIncomingCall)
     .post('/goodbye', CallController.handleFinishCall)
     .post('/call', twilio.webhook({ validate: false }), CallController.handleCall)
 

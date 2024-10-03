@@ -29,7 +29,7 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
       new_oringin = oringin;
     }
 
-    if ((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)){
+    if ((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)) {
       if (hasIvr) {
         // @ts-ignore
         console.log('welcome')
@@ -118,7 +118,8 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: request.body.From, answerOnBridge: true });
 
-    dial.client('phil'); // puxar a identity
+    const callerId = config.twilio?.callerId;
+    dial.client(callerId); // puxar a identity
 
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());
