@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
 import { welcome } from "../lib/ivr";
+import Welcome from "../models/welcome";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
-import Welcome from "../models/welcome";
 
 
 export const handleCall = async (request: Request, response: Response, next: NextFunction) => {
