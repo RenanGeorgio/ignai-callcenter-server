@@ -1,7 +1,7 @@
 import twilio from "twilio";
 import * as actions from "../actions";
 import { giveExtractionPointInstructions, listPlanets, serviceAgent } from "../actions";
-import { MenuType, WelcomeValues } from "../types";
+import { MenuType, Obj, WelcomeValues } from "../types";
 
 export function welcome(From: string, To: string, CallSid: string, company: string, menu: MenuType, values: WelcomeValues) {
   const client = new twilio.twiml.VoiceResponse();
@@ -40,21 +40,16 @@ export function welcome(From: string, To: string, CallSid: string, company: stri
   return client.toString();
 };
 
-export function menu(digit: string) {
+export function menu(digit: string, menuList: string[]) {
   // TO-DO estudar abordagem para puxar isso do cliente
-  const selectedFunction = templateFunctions[RedirectPath];
+  //const selectedFunction = templateFunctions[RedirectPath];
 
-  // recebo
-  const funcoes: never[] = [];
-
-  const optionActions = {};
+  const optionActions: Obj = {};
   let index = 1;
-  for (const func in funcoes) {
-    optionActions[index.toString()] = actions[func];
+  for (const menuItem in menuList) {
+    optionActions[index.toString()] = actions[menuItem] as Function;
     index++;
   }
-
-  
 
   // @ts-ignore
   return (optionActions[digit]) ? optionActions[digit](selectedFunction) : redirectWelcome();

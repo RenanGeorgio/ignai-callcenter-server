@@ -2,60 +2,32 @@ import mongoose from "../../database";
 
 const { Schema } = mongoose;
 
-const welcomeSchema = new Schema({
+const menuSchema = new Schema({
   company: {
     type : String,
     required : true 
   },
-  phoneInfo: [
+  phoneNumber: {
+    type: String,
+    required: true
+  },
+  menuList: [
     {
-      phoneNumber: {
-        type: String,
-        required: true
+      menuItem: {
+        type: String
       }
     }
   ],
-  menu: {
-    language: {
-      type: String,
-      required: true
-    },
-    numDigits: {
-      type: Number,
-      required: true
-    },
-    timeout: {
-      type: Number
-    },
-    actionOnEmptyResult: {
-      type: Boolean
-    }
-  },
-  values: {
-    voice: {
-      type: String
-    },
-    loop: {
-      type: Number
-    },
-    messages: [
-      {
-        message: {
-          type: String
-        }
-      }
-    ]
-  },
   createdAt: {
-      type: Date,
-      default: Date.now
+    type: Date,
+    default: Date.now
   }, 
   updatedAt: {
-      type: Date,
-      default: Date.now
+    type: Date,
+    default: Date.now
   }
 });
 
-const Welcome = mongoose.model('Welcome', welcomeSchema);
+const Menu = mongoose.model('Menu', menuSchema);
 
-export default Welcome;
+export default Menu;

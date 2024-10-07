@@ -1,12 +1,20 @@
 import { NextFunction, Request, Response } from "express";
 import { menu, planets, welcome } from "../lib/ivr";
 import Welcome from "../models/welcome";
+import Menu from "../models/menu";
 
-export const goToMenu = (request: Request, response: Response, next: NextFunction) => {
+export const goToMenu = async (request: Request, response: Response, next: NextFunction) => {
+  const { Digits } = request.body;
   try {
-    const { Digits } = request.body
+    const { user } = request.query;
 
-    return response.send(menu(Digits));
+    const menuData = await Menu.findOne({
+      $elemMatch: { company: user }
+    });
+
+    const { menuList } = menuData;
+
+    return response.send(menu(Digits, menuList));
   }
   catch (error) {
     next(error);
