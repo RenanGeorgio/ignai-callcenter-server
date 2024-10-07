@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { menu, routerFlow, welcome, taskFlow, agents } from "../lib/ivr";
 import Welcome from "../models/welcome";
 import Menu from "../models/menu";
+import Agent from "../models/agent";
 
 export const goToMenu = async (request: Request, response: Response, next: NextFunction) => {
   const { Digits } = request.body;
@@ -66,13 +67,15 @@ export const goToTaskFlow = async (request: Request, response: Response, next: N
 export const goToAgents = async (request: Request, response: Response, next: NextFunction) => {
   const { Digits } = request.body;
   try {
-    const menuData = await Menu.findOne({
+    const { user } = request.query;
+
+    const welcomeData = await Welcome.findOne({
       $elemMatch: { company: user }
     });
 
-    const { menuList } = menuData;
+    const { phoneInfo } = welcomeData;
 
-    response.send(agents(Digits));
+    response.send(agents(Digits, phoneInfo));
   }
   catch (error) {
     next(error);

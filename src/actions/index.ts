@@ -38,7 +38,7 @@ export function giveExtractionPointInstructions(): string {
  * Retorna uma TwiML para interagir com o cliente
  * @return {String}
  */
-export function listPlanets(): string {
+export function listRouters(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   const action = client.gather({
@@ -68,7 +68,7 @@ export function listPlanets(): string {
  * Retorna uma TwiML para interagir com o cliente
  * @return {String}
  */
-export function listPlanets(): string {
+export function listTasks(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   const action = client.gather({
@@ -98,11 +98,11 @@ export function listPlanets(): string {
  * Retorna uma TwiML para interagir com o cliente
  * @return {String}
  */
-export function listAgents(): string {
+export function listAgents(user: string): string {
   const client = new twilio.twiml.VoiceResponse();
 
   const action = client.gather({
-    action: '/agents',
+    action: `/agents?user=${user}`,
     language: 'pt-BR',
     numDigits: 1,
     timeout: 3,
