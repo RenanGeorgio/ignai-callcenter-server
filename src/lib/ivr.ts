@@ -1,8 +1,8 @@
 import twilio from "twilio";
-import { giveExtractionPointInstructions, listRouters, serviceQeue, listAgents, listTasks } from "../actions";
+import { giveInstructions, listRouters, serviceQeue, listAgents, listTasks } from "../actions";
 import { MenuType, Obj, WelcomeValues } from "../types";
 
-const actions = { giveExtractionPointInstructions, listRouters, serviceQeue, listAgents, listTasks };
+const actions = { giveInstructions, listRouters, serviceQeue, listAgents, listTasks };
 
 export function welcome(company: string, menu: MenuType, values: WelcomeValues) {
   const client = new twilio.twiml.VoiceResponse();

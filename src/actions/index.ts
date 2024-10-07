@@ -4,7 +4,7 @@ import twilio from "twilio";
  * Retorna Twiml
  * @return {String}
  */
-export function giveExtractionPointInstructions(): string {
+export function giveInstructions(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(

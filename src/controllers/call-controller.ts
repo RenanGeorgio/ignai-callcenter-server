@@ -102,16 +102,6 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: callerId });
 
-    //dial.number(To);
-
-    /*
-    if (To) {
-      const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-      dial[attr]({}, To);
-    } else {
-      dial.client({}, "support_agent"); // TO-DO: ref -> browser call
-    }
-      */
     const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
     dial[attr]({}, To);
 
