@@ -24,7 +24,9 @@ routes
     // ivr
     .post('/welcome', twilio.webhook({ validate: false }), IvrController.goToWelcome)
     .post('/menu', twilio.webhook({ validate: false }), IvrController.goToMenu)
-    .post('/planets', twilio.webhook({ validate: false }), IvrController.goToPlanets)
+    .post('/router', twilio.webhook({ validate: false }), IvrController.goToRouterFlow)
+    .post('/tasks', twilio.webhook({ validate: false }), IvrController.goToTaskFlow)
+    .post('/agents', twilio.webhook({ validate: false }), IvrController.goToAgents)
 
     // Test Server
     .get('/server', Server.status)

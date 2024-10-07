@@ -4,6 +4,7 @@
   "main": "./src/index.ts",
   "repository": "https://github.com/supplyfy/ignai-callcenter-server.git",
   "author": "RenanGeorgio <regeo9@hotmail.com>",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "ts-node-dev --respawn --watch 'src/**' --transpile-only --ignore-watch node_modules -r tsconfig-paths/register src/index.ts",

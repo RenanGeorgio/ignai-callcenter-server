@@ -4,7 +4,7 @@ import twilio from "twilio";
  * Retorna Twiml
  * @return {String}
  */
-function giveExtractionPointInstructions(): string {
+export function giveExtractionPointInstructions(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(
@@ -38,11 +38,71 @@ function giveExtractionPointInstructions(): string {
  * Retorna uma TwiML para interagir com o cliente
  * @return {String}
  */
-function listPlanets(): string {
+export function listPlanets(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   const action = client.gather({
-    action: '/planets',
+    action: '/router',
+    language: 'pt-BR',
+    numDigits: 1,
+    timeout: 3,
+    method: 'POST',
+    actionOnEmptyResult: false,
+  });
+
+  action.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Camila',
+      loop: 3
+     },
+    'Para chamar o planeta Broh doe As O G, pressione 2. Para chamar o planeta DuhGo ' +
+    'bah, pressione 3. Para chamar um asteróide oober para sua localização, pressione 4. Para ' +
+    'volte ao menu principal, pressione a tecla estrela '
+  );
+
+  return client.toString();
+}
+
+/**
+ * Retorna uma TwiML para interagir com o cliente
+ * @return {String}
+ */
+export function listPlanets(): string {
+  const client = new twilio.twiml.VoiceResponse();
+
+  const action = client.gather({
+    action: '/router',
+    language: 'pt-BR',
+    numDigits: 1,
+    timeout: 3,
+    method: 'POST',
+    actionOnEmptyResult: false,
+  });
+
+  action.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Camila',
+      loop: 3
+     },
+    'Para chamar o planeta Broh doe As O G, pressione 2. Para chamar o planeta DuhGo ' +
+    'bah, pressione 3. Para chamar um asteróide oober para sua localização, pressione 4. Para ' +
+    'volte ao menu principal, pressione a tecla estrela '
+  );
+
+  return client.toString();
+}
+
+/**
+ * Retorna uma TwiML para interagir com o cliente
+ * @return {String}
+ */
+export function listAgents(): string {
+  const client = new twilio.twiml.VoiceResponse();
+
+  const action = client.gather({
+    action: '/agents',
     language: 'pt-BR',
     numDigits: 1,
     timeout: 3,
@@ -68,7 +128,7 @@ function listPlanets(): string {
  * Retorna um xml com o redirecionamento
  * @return {String}
  */
-function serviceAgent(): string {
+export function serviceQeue(): string {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(
@@ -83,10 +143,4 @@ function serviceAgent(): string {
   client.redirect('/incoming');
 
   return client.toString();
-}
-
-export {
-  giveExtractionPointInstructions,
-  listPlanets,
-  serviceAgent
 }

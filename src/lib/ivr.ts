@@ -1,9 +1,10 @@
 import twilio from "twilio";
-import * as actions from "../actions";
-import { giveExtractionPointInstructions, listPlanets, serviceAgent } from "../actions";
+import { giveExtractionPointInstructions, listPlanets, serviceQeue, listAgents } from "../actions";
 import { MenuType, Obj, WelcomeValues } from "../types";
 
-export function welcome(From: string, To: string, CallSid: string, company: string, menu: MenuType, values: WelcomeValues) {
+const actions = { giveExtractionPointInstructions, listPlanets, serviceQeue, listAgents };
+
+export function welcome(company: string, menu: MenuType, values: WelcomeValues) {
   const client = new twilio.twiml.VoiceResponse();
 
   const { language, numDigits, timeout, actionOnEmptyResult } = menu;
@@ -40,27 +41,65 @@ export function welcome(From: string, To: string, CallSid: string, company: stri
   return client.toString();
 };
 
-export function menu(digit: string, menuList: string[]) {
-  // TO-DO estudar abordagem para puxar isso do cliente
-  //const selectedFunction = templateFunctions[RedirectPath];
-
+export function menu(digit: string, menuList: string[], user: string) {
   const optionActions: Obj = {};
+
   let index = 1;
   for (const menuItem in menuList) {
-    optionActions[index.toString()] = actions[menuItem] as Function;
+    optionActions[index.toString()] = actions[menuItem];
     index++;
   }
 
   // @ts-ignore
-  return (optionActions[digit]) ? optionActions[digit](selectedFunction) : redirectWelcome();
+  return (optionActions[digit]) ? optionActions[digit](user) : redirectWelcome();
 };
 
-export function planets(digit: string) {
+export function routerFlow(digit: string) {
   const optionActions = {
     '2': '+19295566487',
     '3': '+17262043675',
     '4': '+16513582243',
   };
+
+  // @ts-ignore
+  if (optionActions[digit]) {
+    const client = new twilio.twiml.VoiceResponse();
+    // @ts-ignore
+    client.dial(optionActions[digit]);
+
+    return client.toString();
+  }
+
+  return redirectWelcome();
+};
+
+export function taskFlow(digit: string) {
+  const optionActions = {
+    '2': '+19295566487',
+    '3': '+17262043675',
+    '4': '+16513582243',
+  };
+
+  // @ts-ignore
+  if (optionActions[digit]) {
+    const client = new twilio.twiml.VoiceResponse();
+    // @ts-ignore
+    client.dial(optionActions[digit]);
+
+    return client.toString();
+  }
+
+  return redirectWelcome();
+};
+
+export function agents(digit: string, agentList: string[]) {
+  const optionActions: Obj = {};
+
+  let index = 2;
+  for (const agent in agentList) {
+    optionActions[index.toString()] = agent;
+    index++;
+  }
 
   // @ts-ignore
   if (optionActions[digit]) {

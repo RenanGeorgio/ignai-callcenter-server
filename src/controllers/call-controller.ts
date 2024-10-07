@@ -43,7 +43,7 @@ export const handleCall = async (request: Request, response: Response, next: Nex
 
         const { company, menu, values } = welcomeData;
         
-        response.send(welcome(new_oringin, To, CallSid, company, menu, values));
+        response.send(welcome(company, menu, values));
       } else {
         if (isAValidPhoneNumber(new_oringin)) {
           // @ts-ignore
