@@ -39,6 +39,9 @@ export function welcome() {
 
 export function menu(digit: string) {
   // TO-DO estudar abordagem para puxar isso do cliente
+  const selectedFunction = templateFunctions[RedirectPath];
+
+
   const optionActions = {
     '1': giveExtractionPointInstructions,
     '2': listPlanets,
@@ -47,6 +50,22 @@ export function menu(digit: string) {
 
   // @ts-ignore
   return (optionActions[digit]) ? optionActions[digit]() : redirectWelcome();
+};
+
+// PARECE UM DOS CAMINHOS MAIS APROPRIADOS
+export function menu2(digit: string) {
+  // TO-DO estudar abordagem para puxar isso do cliente
+  const selectedFunction = templateFunctions[RedirectPath];
+
+
+  const optionActions = {
+    '1': giveExtractionPointInstructions,
+    '2': listPlanets,
+    '3': serviceAgent,
+  };
+
+  // @ts-ignore
+  return (optionActions[digit]) ? optionActions[digit](selectedFunction) : redirectWelcome();
 };
 
 export function planets(digit: string) {
