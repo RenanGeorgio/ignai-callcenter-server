@@ -114,12 +114,19 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
 };
 
 export const handleIncomingCall = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log('incoming');
   try {
+    // @ts-ignore
+    console.log(request.body);
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: request.body.From, answerOnBridge: true });
 
     const callerId = config.twilio?.callerId;
-    dial.client(callerId); // puxar a identity
+    //dial.client(callerId); // puxar a identity
+    dial.client('Samuel');
+    // @ts-ignore
+    console.log('incoming 2');
 
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());
