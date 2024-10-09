@@ -15,7 +15,7 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   try {
     const { Called, Caller, From, To, Direction } = body;
     
-    const callerId = config.twilio?.callerId;
+    const callerId = config.twilio?.callerId; // NUMERO USADO
     const client = new twilio.twiml.VoiceResponse();
     // @ts-ignore
     console.log(callerId);
