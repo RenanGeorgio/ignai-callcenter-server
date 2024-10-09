@@ -1,27 +1,9 @@
-import e, { NextFunction, Response } from "express";
-import ChatClientModel from "../../models/chat/chatClientModel";
-import {
-  createChatClient,
-  findChatClientById,
-  listChatClients,
-  updateChatClient,
-} from "../../repositories/chatClient";
-import { CustomRequest } from "../../types";
-import { userExist } from "../../repositories/user";
+import { NextFunction, Response, Request } from "express";
+import Company from "../models/company";
 
-export const listClients = async (
-  req: CustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const listCompanies = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await userExist(req.user?.sub as string);
-
-    if (!user) {
-      return res.status(403).send({ message: "Unauthorized" });
-    }
-
-    const clients = await listChatClients(user?.companyId as string);
+    const clients = await Company.find({});
 
     return res.status(200).json(clients);
   } catch (error: any) {
@@ -29,26 +11,30 @@ export const listClients = async (
   }
 };
 
-export const createCompany = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  const user = await Company.findOne(req.user?.sub as string);
+export const createCompany = async (req: Request, res: Response, next: NextFunction) => {
+  const { company, phoneInfo, welcomeId, menuIds, messagesIds, queues } = req.body;
 
-  if (!user) {
-    return res.status(403).send({ message: "Unauthorized" });
+  if (!company) {
+    return res.status(400).send({ message: "Missing required fields" });
   }
 
   try {
-    const { name, lastName, username } = req.body;
+    const companyData = await Company.findOne({
+      $elemMatch: { company: company } 
+    });
 
-    if (!name || !username || !user) {
-      return res.status(400).send({ message: "Missing required fields" });
+    if (companyData) {
+      return res.status(400).send({ message: "Company allready exists" });
     }
 
-    const client = await createChatClient(
-      username,
-      name,
-      lastName,
-      user.companyId
-    );
+    const client =  await Company.create({
+      company,
+      phoneInfo,
+      welcomeId,
+      menuIds,
+      messagesIds,
+      queues
+    })
 
     if (!client) {
       return res.status(400).send({ message: client });
@@ -56,9 +42,7 @@ export const createCompany = async (req: CustomRequest, res: Response, next: Nex
 
     return res.status(201).send({
       _id: client._id,
-      name: client.name,
-      lastName: client.lastName,
-      username: client.username,
+      company: client.company,
       createdAt: client.createdAt,
       updatedAt: client.updatedAt,
     });
@@ -67,85 +51,147 @@ export const createCompany = async (req: CustomRequest, res: Response, next: Nex
   }
 };
 
-export const findClientByEmail = async (
-  req: CustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  const { username } = req.params;
+export const findCompanyByName = async (req: Request, res: Response, next: NextFunction) => {
+  const { company } = req.params;
 
   try {
-    const client = await ChatClientModel.findOne({
-      username,
+    const client = await Company.findOne({
+      company
     });
 
     if (client) {
       return res.status(200).send(client);
     }
 
-    return res.status(404).send("Chat user not found");
+    return res.status(404).send("Company not found");
   } catch (error: any) {
     next(error);
   }
 };
 
-export const findClientById = async (
-  req: CustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const findCompanyById = async (req: Request, res: Response, next: NextFunction) => {
   const { _id } = req.params;
 
   try {
-    const client = await findChatClientById(_id)
-
-    if (client) {
-      return res.status(200).json(client);
-    }
-
-    return res.status(404).send("Cliente não encontrado");
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-export const updateClient = async (
-  req: CustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  const { _id } = req.params;
-  
-  const {
-    name,
-    lastName,
-    username,
-    phone,
-    address,
-    email,
-    metadata,
-  } = req.body;
-
-  try {
-    const client = await updateChatClient({
-      _id,
-      name,
-      lastName,
-      username,
-      phone,
-      address,
-      email,
-      metadata,
+    const client = await Company.findOne({
+      $elemMatch: { _id } 
     });
 
-    if(!client) {
-      return res.status(404).send({ message: "Cliente não encontrado" });
-    }
-
     if (client) {
       return res.status(200).json(client);
     }
 
+    return res.status(404).send("Company not found");
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateCompanyQueues = async (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = req.params;
+
+  try {
+    const { company, queues } = req.body;
+
+    if ((!company) || (!queues)) {
+      return res.status(400).send({ message: "Missing required fields" });
+    }
+
+    const client = await  Company.updateOne({ _id, company: company }, { queues: queues });
+
+    if (!client) {
+      return res.status(404).send({ message: "Cliente não encontrado" });
+    } else {
+      return res.status(200).json(client);
+    }
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateCompanyPhone = async (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = req.params;
+
+  try {
+    const { company, phoneInfo } = req.body;
+
+    if ((!company) || (!phoneInfo)) {
+      return res.status(400).send({ message: "Missing required fields" });
+    }
+
+    const client = await  Company.updateOne({ _id, company: company }, { phoneInfo: phoneInfo });
+
+    if (!client) {
+      return res.status(404).send({ message: "Cliente não encontrado" });
+    } else {
+      return res.status(200).json(client);
+    }
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateCompanyWelcome = async (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = req.params;
+
+  try {
+    const { company, welcomeId } = req.body;
+
+    if ((!company) || (!welcomeId)) {
+      return res.status(400).send({ message: "Missing required fields" });
+    }
+    
+    const client = await  Company.updateOne({ _id, company: company }, { welcomeId: welcomeId });
+
+    if (!client) {
+      return res.status(404).send({ message: "Cliente não encontrado" });
+    } else {
+      return res.status(200).json(client);
+    }
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateCompanyMenu = async (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = req.params;
+
+  try {
+    const { company, menuIds } = req.body;
+
+    if ((!company) || (!menuIds)) {
+      return res.status(400).send({ message: "Missing required fields" });
+    }
+    
+    const client = await  Company.updateOne({ _id, company: company }, { menuIds: menuIds });
+
+    if (!client) {
+      return res.status(404).send({ message: "Cliente não encontrado" });
+    } else {
+      return res.status(200).json(client);
+    }
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const updateCompanyMessages = async (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = req.params;
+
+  try {
+    const { company, messagesIds } = req.body;
+
+    if ((!company) || (!messagesIds)) {
+      return res.status(400).send({ message: "Missing required fields" });
+    }
+    
+    const client = await  Company.updateOne({ _id, company: company }, { messagesIds: messagesIds });
+
+    if (!client) {
+      return res.status(404).send({ message: "Cliente não encontrado" });
+    } else {
+      return res.status(200).json(client);
+    }
   } catch (error: any) {
     next(error);
   }
