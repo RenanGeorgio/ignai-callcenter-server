@@ -1,4 +1,5 @@
 import "express-async-errors";
+import twilio from "twilio";
 
 import * as dotenv from "dotenv";
 dotenv.config()
@@ -6,6 +7,8 @@ dotenv.config()
 import config from "./config/env";
 import { serverHttp } from "./core/http";
 import "./websocket";
+
+const client = new twilio.twiml.VoiceResponse();
 
 const port = config.app.port || 6060;
 
@@ -36,22 +39,16 @@ serverHttp.on('error', (error: any) => {
 });
 
 serverHttp.on('listening', () => {
-  const addr = serverHttp.address();
+  client.enqueue('default');
 
-  const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr?.port;
-  debug('Listening on ' + bind);
-  console.log("Configuring a Twilio's TaskRouter Workspace");
-  workspace.setup().then(function (data) {
+  /*workspace.setup().then(function (data) {
     app.set('workerInfo', data[0]);
     app.set('workspaceInfo', data[1]);
-    console.log(data)
-    console.log('Application configured!');
-    console.log('Call your Twilio number at: ' + process.env.TWILIO_NUMBER);
   })
   .catch((error: any) => {
     console.error(error?.message);
     throw error;
-  });
+  });*/
 });
 /*
 <Say> — Read text to the caller
