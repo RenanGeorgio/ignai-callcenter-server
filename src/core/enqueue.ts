@@ -1,7 +1,8 @@
-import twilio from 'twilio';
+import twilio from "twilio";
 import find from 'lodash/find.js';
 import map from 'lodash/map.js';
 import difference from 'lodash/difference.js';
+import { Obj } from "../types";
 
 const WORKSPACE_NAME = 'TaskRouter Node Workspace';
 const HOST = process.env.HOST;
@@ -9,21 +10,74 @@ const EVENT_CALLBACK = `${HOST}/events`;
 const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 
-export default function() {
-  function initClient(existingWorkspaceSid) {
+interface WorkflowDTO {
+  client: any
+  queues?: Obj[] | Array<unknown>
+  createTaskQueues: () => any
+  createWorker: (obj: Obj) => any
+  createWorkers: () => any
+  createWorkflow: () => any
+  createWorkflowActivities: () => any
+  createWorkflowConfig: () => string
+  createWorkspace: () => any
+  deleteByFriendlyName: (name: string) => any
+  findByFriendlyName: (name: string) => any
+  initClient: (id?: string) => void
+  initWorkspace: () => any
+}
+
+/*
+export const ConsumerData = class<Consumer> {
+  igsid: string | number;
+  name: string | undefined;
+  profilePic: any | undefined;
+  constructor(user: Consumer) {
+    this.igsid = user["igsid"];
+    this.name = "";
+    this.profilePic = "";
+  }
+
+  setProfile(name: string, profilePic: any) {
+    this.name = name;
+    this.profilePic = profilePic;
+  }
+};
+*/
+
+
+export const Workflow = class<WorkflowDTO> {
+  client: any;
+  queues?: Obj[] | Array<unknown>;
+
+  constructor() {
+    const ctx = this;
+
+    ctx.initClient();
+
+    return this.initWorkspace()
+      .then(this.createWorkflowActivities.bind(ctx))
+      .then(this.createTaskQueues.bind(ctx))
+      .then(this.createWorkflow.bind(ctx))
+      .then(function(workspaceInfo: Obj) {
+        return ctx.createWorkers().then(function(workerInfo: Obj) {
+          return [workerInfo, workspaceInfo];
+        });
+      });
+  }
+
+  initClient(existingWorkspaceSid?: string) {
     if (!existingWorkspaceSid) {
       this.client = twilio(ACCOUNT_SID, AUTH_TOKEN).taskrouter.v1.workspaces;
     } else {
-      this.client = twilio(ACCOUNT_SID, AUTH_TOKEN)
-        .taskrouter.v1.workspaces(existingWorkspaceSid);
+      this.client = twilio(ACCOUNT_SID, AUTH_TOKEN).taskrouter.v1.workspaces(existingWorkspaceSid);
     }
   }
 
-  function createWorker(opts) {
+  createWorker(opts: Obj) {
     const ctx = this;
 
     return this.client.activities.list({ friendlyName: 'Idle' })
-      .then(function(idleActivity) {
+      .then(function(idleActivity: Obj) {
         return ctx.client.workers.create({
           friendlyName: opts.name,
           attributes: JSON.stringify({
@@ -35,7 +89,7 @@ export default function() {
       });
   }
 
-  function createWorkflow() {
+  createWorkflow() {
     const ctx = this;
     const config = this.createWorkflowConfig();
 
@@ -45,9 +99,9 @@ export default function() {
       fallbackAssignmentCallbackUrl: `${HOST}/call/assignment`,
       taskReservationTimeout: 15,
       configuration: config,
-    }).then(function(workflow) {
+    }).then(function(workflow: Obj) {
       return ctx.client.activities.list()
-        .then(function(activities) {
+        .then(function(activities: Obj) {
           const idleActivity = find(activities, { friendlyName: 'Idle' });
           const offlineActivity = find(activities, { friendlyName: 'Offline' });
 
@@ -63,11 +117,11 @@ export default function() {
     });
   }
 
-  function createTaskQueues() {
+  createTaskQueues() {
     const ctx = this;
 
     return this.client.activities.list()
-      .then(function(activities) {
+      .then(function(activities: string[]) {
         const busyActivity = find(activities, { friendlyName: 'Busy' });
         const reservedActivity = find(activities, { friendlyName: 'Reserved' });
 
@@ -96,7 +150,7 @@ export default function() {
       });
   }
 
-  function createWorkers() {
+  createWorkers() {
     const ctx = this;
 
     return Promise.all([
@@ -113,7 +167,7 @@ export default function() {
     ]).then(function(workers) {
       const bobWorker = workers[0];
       const aliceWorker = workers[1];
-      const workerInfo = {};
+      const workerInfo: Obj = {};
 
       workerInfo[process.env.ALICE_NUMBER] = aliceWorker.sid;
       workerInfo[process.env.BOB_NUMBER] = bobWorker.sid;
@@ -122,17 +176,17 @@ export default function() {
     });
   }
 
-  function createWorkflowActivities() {
+  createWorkflowActivities() {
     const ctx = this;
     const activityNames = ['Idle', 'Busy', 'Offline', 'Reserved'];
 
     return ctx.client.activities.list()
-      .then(function(activities) {
+      .then(function(activities: string[]) {
         const existingActivities = map(activities, 'friendlyName');
 
         const missingActivities = difference(activityNames, existingActivities);
 
-        const newActivities = map(missingActivities, function(friendlyName) {
+        const newActivities = map(missingActivities, function(friendlyName: string) {
           return ctx.client.activities.create({
             friendlyName: friendlyName,
             available: 'true',
@@ -145,7 +199,7 @@ export default function() {
       });
   }
 
-  function createWorkflowConfig() {
+  createWorkflowConfig() {
     const queues = this.queues;
 
     if (!queues) {
@@ -193,70 +247,54 @@ export default function() {
     return JSON.stringify(config);
   }
 
-  function setup() {
-    const ctx = this;
-
-    ctx.initClient();
-
-    return this.initWorkspace()
-      .then(createWorkflowActivities.bind(ctx))
-      .then(createTaskQueues.bind(ctx))
-      .then(createWorkflow.bind(ctx))
-      .then(function(workspaceInfo) {
-        return ctx.createWorkers().then(function(workerInfo) {
-          return [workerInfo, workspaceInfo];
-        });
-      });
-  }
-
-  function findByFriendlyName(friendlyName) {
+  findByFriendlyName(friendlyName: string) {
     const client = this.client;
 
-    return client.list().then(function(data) {
+    return client.list().then(function(data: any) {
       return find(data, { friendlyName: friendlyName });
     });
   }
 
-  function deleteByFriendlyName(friendlyName) {
+  deleteByFriendlyName(friendlyName: string) {
     const ctx = this;
 
-    return this.findByFriendlyName(friendlyName).then(function(workspace) {
+    return this.findByFriendlyName(friendlyName).then(function(workspace: any) {
       if (workspace.remove) {
         return workspace.remove();
       }
     });
   }
 
-  function createWorkspace() {
+  createWorkspace() {
     return this.client.create({
       friendlyName: WORKSPACE_NAME,
       EVENT_CALLBACKUrl: EVENT_CALLBACK,
     });
   }
 
-  function initWorkspace() {
+  initWorkspace() {
     const ctx = this;
     const client = this.client;
 
     return ctx.findByFriendlyName(WORKSPACE_NAME)
-      .then(function(workspace) {
+      .then(function(workspace: any) {
         let newWorkspace;
 
         if (workspace) {
-          newWorkspace = ctx.deleteByFriendlyName(WORKSPACE_NAME)
-            .then(createWorkspace.bind(ctx));
+          newWorkspace = ctx.deleteByFriendlyName(WORKSPACE_NAME).then(this.createWorkspace.bind(ctx));
         } else {
           newWorkspace = ctx.createWorkspace();
         }
 
         return newWorkspace;
-      }).then(function(workspace) {
+      }).then(function(workspace: any) {
         ctx.initClient(workspace.sid);
 
         return workspace;
       });
   }
 
+  /*
   return {
     createTaskQueues,
     createWorker,
@@ -270,5 +308,5 @@ export default function() {
     initClient,
     initWorkspace,
     setup,
-  };
+  };*/
 }
