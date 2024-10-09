@@ -26,24 +26,6 @@ interface WorkflowDTO {
   initWorkspace: () => any
 }
 
-/*
-export const ConsumerData = class<Consumer> {
-  igsid: string | number;
-  name: string | undefined;
-  profilePic: any | undefined;
-  constructor(user: Consumer) {
-    this.igsid = user["igsid"];
-    this.name = "";
-    this.profilePic = "";
-  }
-
-  setProfile(name: string, profilePic: any) {
-    this.name = name;
-    this.profilePic = profilePic;
-  }
-};
-*/
-
 
 export const Workflow = class<WorkflowDTO> {
   client: any;
@@ -277,7 +259,7 @@ export const Workflow = class<WorkflowDTO> {
     const client = this.client;
 
     return ctx.findByFriendlyName(WORKSPACE_NAME)
-      .then(function(workspace: any) {
+      .then((workspace: any) => {
         let newWorkspace;
 
         if (workspace) {
