@@ -1,5 +1,3 @@
-'use strict';
-
 import twilio from 'twilio';
 import find from 'lodash/find.js';
 import map from 'lodash/map.js';
