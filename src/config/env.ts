@@ -5,6 +5,7 @@ dotenv.config();
 const config = {
   app: {
     port: process.env.PORT || 6060,
+    database: process.env.MONGO_URL ? process.env.MONGO_URL.replace(/[\\"]/g, '') : "",
   },
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID ? process.env.TWILIO_ACCOUNT_SID.replace(/[\\"]/g, '') : "",

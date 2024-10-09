@@ -1,14 +1,12 @@
 import "express-async-errors";
-import twilio from "twilio";
 
 import * as dotenv from "dotenv";
 dotenv.config()
 
 import config from "./config/env";
-import { serverHttp } from "./core/http";
+import { serverHttp, client } from "./core/http";
+import mongoose from "./database";
 import "./websocket";
-
-const client = new twilio.twiml.VoiceResponse();
 
 const port = config.app.port || 6060;
 
@@ -49,6 +47,34 @@ serverHttp.on('listening', () => {
     console.error(error?.message);
     throw error;
   });*/
+});
+
+mongoose.connection.once('open', () => {
+  const result = mongoose.connection.readyState;
+  console.log('Connected to MongoDB', result);
+
+  // Create a change stream on the User model (collection level)
+  const changeStream = User.watch();
+
+  // Listen for changes in the User collection
+  changeStream.on('change', (change) => {
+    console.log('Change detected:', change);
+
+    // Handle different types of changes (insert, update, delete, etc.)
+    switch (change.operationType) {
+      case 'insert':
+        console.log('New document inserted:', change.fullDocument);
+        break;
+      case 'update':
+        console.log('Document updated:', change.updateDescription);
+        break;
+      case 'delete':
+        console.log('Document deleted with _id:', change.documentKey._id);
+        break;
+      default:
+        console.log('Other change type:', change);
+    }
+  });
 });
 /*
 <Say> — Read text to the caller
