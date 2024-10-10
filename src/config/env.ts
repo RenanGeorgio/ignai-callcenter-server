@@ -7,6 +7,11 @@ const config = {
     port: process.env.PORT || 6060,
     database: process.env.MONGO_URL ? process.env.MONGO_URL.replace(/[\\"]/g, '') : "",
   },
+  redis: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: process.env.REDIS_PORT || '6379',
+    password: process.env.REDIS_PASSWORD || '',
+  },
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID ? process.env.TWILIO_ACCOUNT_SID.replace(/[\\"]/g, '') : "",
     authToken: process.env.TWILIO_AUTH_TOKEN ? process.env.TWILIO_AUTH_TOKEN.replace(/[\\"]/g, '') : "",

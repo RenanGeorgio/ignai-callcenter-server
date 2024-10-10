@@ -8,14 +8,18 @@ export const getToken = (request: Request, response: Response, next: NextFunctio
   const apiSecret = config.twilio.apiSecret;
   const appSid = config.twilio.outgoingApplicationSid;
 
+  if (!accountSid || !apiKey || !apiSecret) {
+    throw new Error("accountSid, apiKey or apiSecret not present.")
+  }
+
   const AccessToken = twilio.jwt.AccessToken;
   const VoiceGrant = AccessToken.VoiceGrant;
-  
+
   try {
     const identity = request.body.identity ?? config.twilio?.callerId;
 
-    if (!accountSid || !apiKey || !apiSecret) {
-      throw new Error("accountSid, apiKey or apiSecret not present.")
+    if (!identity) {
+      response.status(400).send({ message: "Identity is missing!" });
     }
 
     const accessToken = new AccessToken(accountSid, apiKey, apiSecret, {
