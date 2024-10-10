@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
+import { setCompanyAgents } from "../lib/online-agents";
+import { Agent } from "../models";
 import config from "../config/env";
 
-export const getToken = (request: Request, response: Response, next: NextFunction) => {
+export const getToken = async (request: Request, response: Response, next: NextFunction) => {
   const accountSid = config.twilio.accountSid;
   const apiKey = config.twilio.apiKey;
   const apiSecret = config.twilio.apiSecret;
@@ -33,6 +35,13 @@ export const getToken = (request: Request, response: Response, next: NextFunctio
 
     accessToken.addGrant(voiceGrant);
 
+    const agentData = await Agent.findOne({
+      $elemMatch: { agentName: identity } 
+    });
+
+    if (agentData) {
+      setCompanyAgents(agentData.company, agentData.allowedQueues, agentData.agentName);
+    }
     /*
     const headers = {
       "Access-Control-Allow-Origin": "*",

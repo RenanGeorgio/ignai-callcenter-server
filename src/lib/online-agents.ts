@@ -10,26 +10,44 @@ function setUserOffline(userId: string) {
   redisClient.del(userId);
 }
 
-export async function setCompanyAgents(companyId: string, queue: string, userId: string) {
-  const userList: string[] = [];
+export function setCompanyAgents(companyId: string, queues: string[], userId: string) {
+  const user = userId;
+  const userQueues = queues;
+  const company = companyId;
 
-  const res: string = await redisClient.hGet(companyId, queue);
-  if (res) {
-    const resList: string[] = res.split(" ");
-    userList.push(...resList);
+  const registerAgent = async (companyName: string, queuesInfo: string[], id: string) => {
+    try {
+      const agentName = id;
+      const qsInfo = queuesInfo;
+      const comName = companyName;
+
+      for (const qInfo in qsInfo) {
+        const userList: string[] = [];
+  
+        const res: string = await redisClient.hGet(comName, qInfo);
+        if (res) {
+          const resList: string[] = res.split(" ");
+          userList.push(...resList);
+        }
+  
+        userList.push(agentName);
+        setUserOnline(agentName);
+  
+        if (userList.length > 1) {
+          const users = userList.join(" ");
+          redisClient.hset(comName, qInfo, users);
+        } else {
+          redisClient.hset(comName, qInfo, agentName);
+        }
+      }
+
+      return;
+    } catch (err: any) {
+      throw new Error(err);
+    }
   }
 
-  userList.push(userId);
-  setUserOnline(userId);
-
-  if (userList.length > 1) {
-    const users = userList.join(" ");
-    redisClient.hset(companyId, queue, users);
-  } else {
-    redisClient.hset(companyId, queue, userId);
-  }
-
-  return;
+  registerAgent(company, userQueues, user);
 }
 
 export async function removeCompanyAgents(companyId: string, queue: string, userId: string) {
@@ -56,14 +74,14 @@ export async function removeCompanyAgents(companyId: string, queue: string, user
 }
 
 // Retrieve the hash fields for a user
-redisClient.hgetall(userId, (err, result) => {
+/*redisClient.hgetall(userId, (err, result) => {
   if (err) {
     console.error('Error fetching user data from Redis:', err);
     return;
   }
 
-  console.log(result); // { name: 'user1', company: 'Some Company', role: 'Admin' }
-});
+  console.log(result);
+});*/
 
 export function checkUserOnline(userId: string, callback: any) {
   redisClient.get(userId, (err: any, result: string) => {
