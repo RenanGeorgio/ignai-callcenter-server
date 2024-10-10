@@ -3,15 +3,15 @@ import twilio from "twilio";
 import config from "../config/env";
 
 export const getToken = (request: Request, response: Response, next: NextFunction) => {
+  const accountSid = config.twilio.accountSid;
+  const apiKey = config.twilio.apiKey;
+  const apiSecret = config.twilio.apiSecret;
+  const appSid = config.twilio.outgoingApplicationSid;
+
+  const AccessToken = twilio.jwt.AccessToken;
+  const VoiceGrant = AccessToken.VoiceGrant;
+  
   try {
-    const accountSid = config.twilio.accountSid;
-    const apiKey = config.twilio.apiKey;
-    const apiSecret = config.twilio.apiSecret;
-    const appSid = config.twilio.outgoingApplicationSid;
-
-    const AccessToken = twilio.jwt.AccessToken;
-    const VoiceGrant = AccessToken.VoiceGrant;
-
     const identity = request.body.identity ?? config.twilio?.callerId;
 
     if (!accountSid || !apiKey || !apiSecret) {

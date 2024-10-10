@@ -113,7 +113,7 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
   }
 };
 
-export const handleIncomingCall = (request: Request, response: Response, next: NextFunction) => {
+export const handleDirectIncomingCall = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log('incoming');
   try {
@@ -128,6 +128,37 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
     // @ts-ignore
     console.log('incoming 2');
 
+    response.set('Content-Type', 'text/xml');
+    response.send(client.toString());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleIncomingCall = (request: Request, response: Response, next: NextFunction) => {
+  const { Caller, From, To } = request.body;
+
+  const caller = From ? From : Caller;
+
+  let dial: any = undefined;
+  try {
+    const client = new twilio.twiml.VoiceResponse();
+
+    if (isAValidPhoneNumber(caller)) {
+      dial = client.dial({ callerId: caller, answerOnBridge: true });
+    } else {
+      dial = client.dial({ answerOnBridge: true });
+    }
+
+    // TO-DO: Usar o To (ou outro parametro confiavel) para descobrir a empresa
+    dial.queue({
+      url: '/about-to-connect',
+      method: 'POST'
+    }, 'support');
+
+    // @ts-ignore
+    console.log('respondendo')
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());
   }

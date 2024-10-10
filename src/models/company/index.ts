@@ -45,6 +45,13 @@ const companySchema = new Schema({
       }
     }
   ],
+  agentIds: [
+    {
+      agentId: {
+        type: String
+      }
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now

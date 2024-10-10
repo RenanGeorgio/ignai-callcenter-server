@@ -13,6 +13,9 @@ import * as IvrController from "../../controllers/ivr-controller";
 // Company
 import * as CompanyController from "../../controllers/company-controller";
 
+// Documents
+import * as DocumentsController from "../../controllers/documents/controller";
+
 // Server
 import Server from "../../controllers/server";
 
@@ -20,7 +23,8 @@ routes
     // call
     .post('/token', TokenController.getToken)
     .post('/outgoing', CallController.handleOutgoingCall)
-    .post('/incoming', twilio.webhook({ validate: false }), CallController.handleIncomingCall)
+    .post('/incoming', twilio.webhook({ validate: false }), CallController.handleDirectIncomingCall)
+    .post('/incoming-queue', twilio.webhook({ validate: false }), CallController.handleIncomingCall)
     .post('/goodbye', CallController.handleFinishCall)
     .post('/call', twilio.webhook({ validate: false }), CallController.handleCall)
 
@@ -44,6 +48,9 @@ routes
     .put('/company-menu', CompanyController.updateCompanyMenu)
     .post('/company-messages', CompanyController.updateCompanyMessages)
     .put('/company-messages', CompanyController.updateCompanyMessages)
+
+    // documents
+    .post('/about-to-connect', DocumentsController.toConnect)
 
     // Test Server
     .get('/server', Server.status)

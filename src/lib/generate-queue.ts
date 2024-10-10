@@ -9,7 +9,14 @@ export  default function generateQueue(queues: string[], id: string) {
   }
 
   const queueDefault = "default-" + id;
-  client.enqueue(queueDefault);
+  client.enqueue(
+    {
+      action: '',
+      method: 'POST',
+      waitUrl: '',
+      waitUrlMethod: 'POST',
+
+    }, queueDefault);
 
   return client.toString();
 }
