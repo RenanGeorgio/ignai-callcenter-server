@@ -9,6 +9,7 @@ import pino from "express-pino-logger";
 
 import { redisClient } from "./core/redis";
 import { routes } from "./routes";
+import * as notifyEvents from "./events";
 
 const store = new RedisStore({ client: redisClient, prefix: "chatbot:" });
 
@@ -29,6 +30,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 app.use(pino());
+
+app.use('/events', notifyEvents);
 
 // routes
 app.use(routes);

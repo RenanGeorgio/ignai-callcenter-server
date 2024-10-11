@@ -32,8 +32,9 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
     if ((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)) {
       if (hasIvr) {
         // @ts-ignore
-        console.log('welcome')
-        response.send(welcome());
+        console.log('welcome');
+        const companyId = "1";
+        response.send(welcome(companyId));
       } else {
         if (isAValidPhoneNumber(new_oringin)) {
           // @ts-ignore
@@ -159,6 +160,34 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
 
     // @ts-ignore
     console.log('respondendo')
+    response.set('Content-Type', 'text/xml');
+    response.send(client.toString());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleIncomingQueuedCall = (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { queue } = request.params;
+
+    const { Caller, From, To } = request.body;
+    const caller = From ? From : Caller;
+
+    const client = new twilio.twiml.VoiceResponse();
+
+    client.enqueue(
+      {
+        action: '/dequeue-action',
+        method: 'POST',
+        waitUrl: `/wait-room?queue=${queue}`,
+        waitUrlMethod: 'POST',
+  
+      }, 
+      queue // TO-DO: Pegar o nome correto
+    );
+
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());
   }
