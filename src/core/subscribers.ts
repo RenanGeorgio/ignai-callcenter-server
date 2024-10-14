@@ -1,36 +1,26 @@
-import { DirectLine, ConnectionStatus, Activity } from "botframework-directlinejs";
-import { ActivityTypes } from "botbuilder";
-import queue from "../../Queue";
+import { Obj, QueueSubscriber } from "types";
 
-const directLine = new DirectLine({
-  secret: process.env.DIRECT_LINE_SECRET,
-  webSocket: true
-});
+interface ISubscriber {
+    sub: QueueSubscriber
+    userId: string
+}
 
 export class DirectlineService {
   static _instance: DirectlineService;
+  subscribers: Obj;
 
   constructor() {
+    this.subscribers = {};
   }
 
-  public sendMessageToBot(text: string, id: string, name: string = "Anonymous", conversation?: string, value?: object) {
-      const activity: Activity = {
-          from: { id, name, role: "user" },
-          type: ActivityTypes.Message,
-          // eTag?: string,
-          text: text,
-          ...(conversation ? { conversation: { id: conversation } } : {} ),
-          ...(value ? { value } : { }),
-      }
-      directLine
-          .postActivity(activity).subscribe(
-              (value: any) => console.log("Posted message activity. " + value),
-              (error: any) => console.log('Error posting activity: ' + error?.message),
-              () => console.log("Activity completed."),
-          );
+  public sentData({ sub, userId }: ISubscriber) {
+    const { companyId, queueId, res } = sub;
+    const subscriber: QueueSubscriber = sub;
+    
+    this.subscribers[userId] = subscriber;
   }
 
-  public subscribeBot(botName: string = "ignaibot"): void {
+  public getData(botName: string = "ignaibot"): void {
       directLine.activity$
           .filter(activity => activity.type === ActivityTypes.Message && activity.from.id === botName)
           .subscribe(
