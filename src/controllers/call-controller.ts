@@ -2,8 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
 import { welcome } from "../lib/ivr";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
-import config from "../config/env";
-
 
 export const handleCall = (request: Request, response: Response, next: NextFunction) => {
   const hasIvr = true; // TO-DO: checkar se o usuario possui IVR (URA)
@@ -13,9 +11,9 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log(body);
   try {
-    const { Called, Caller, From, To, Direction } = body;
+    const { Called, Caller, From, To, Direction, twilioConfig } = body;
     
-    const callerId = config.twilio?.callerId; // NUMERO USADO
+    const callerId = twilioConfig?.callerId; // NUMERO USADO
     const client = new twilio.twiml.VoiceResponse();
     // @ts-ignore
     console.log(callerId);
@@ -85,9 +83,9 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
 
 export const handleOutgoingCall = (request: Request, response: Response, next: NextFunction) => {
   try {
-    const { To } = request.body;
+    const { To, twilioConfig } = request.body;
 
-    const callerId = config.twilio?.callerId;
+    const callerId = twilioConfig?.callerId;
 
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: callerId });
@@ -119,10 +117,12 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
   try {
     // @ts-ignore
     console.log(request.body);
-    const client = new twilio.twiml.VoiceResponse();
-    const dial = client.dial({ callerId: request.body.From, answerOnBridge: true });
+    const { From, twilioConfig } = request.body;
 
-    const callerId = config.twilio?.callerId;
+    const client = new twilio.twiml.VoiceResponse();
+    const dial = client.dial({ callerId: From, answerOnBridge: true });
+
+    const callerId = twilioConfig?.callerId;
     //dial.client(callerId); // puxar a identity
     dial.client('Samuel');
     // @ts-ignore
@@ -138,10 +138,10 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
 
 export const makeCall = (request: Request, response: Response, next: NextFunction) => {
   try {
-    const client = twilio(config.twilio.accountSid, config.twilio.apiSecret);
-
-    const { To, From } = request.body;
-
+    
+    const { To, From, twilioConfig } = request.body;
+    const client = twilio(twilioConfig.accountSid, twilioConfig.apiSecret);
+    
     async function createCall(To: string, From: string) {
       const call = await client.calls.create({
         from: From,
