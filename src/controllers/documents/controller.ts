@@ -30,13 +30,25 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
       MaxQueueSize 
     } = request.body;
 
-    const eventdata: NotifyAgentDTO = {
-      eventData: Caller, // TO-DO: Alterar o valor a ser enviado
+    const eventdata = {
+      Caller, 
+      From, 
+      To,
+      QueuePosition, 
+      QueueSid, 
+      QueueTime, 
+      AvgQueueTime, 
+      CurrentQueueSize, 
+      MaxQueueSize 
+    }
+
+    const notifydata: NotifyAgentDTO = {
+      eventData: eventdata,
       filterCompanyId: company,
       filterQueueId: queue ? queue : undefined
     }
 
-    sendEventToClients(eventdata);
+    sendEventToClients(notifydata);
 
     return response.send(waitMusic());
   }
