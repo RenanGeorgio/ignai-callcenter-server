@@ -1,4 +1,12 @@
-export default function sendEventToClients(eventData: any, filterCompanyId: string, filterQueueId?: string) {
+import { subscribersService as subscribers } from "../../core/subscribers";
+
+export interface NotifyAgentDTO {
+  eventData: any
+  filterCompanyId: string
+  filterQueueId?: string
+}
+
+export function sendEventToClients({ eventData, filterCompanyId, filterQueueId }: NotifyAgentDTO) {
   // @ts-ignore
   Object.entries(subscribers).forEach(([key, { companyId, queueId, res }]) => {
     if (filterQueueId) {

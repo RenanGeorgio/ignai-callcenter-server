@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import sendEventToClients from "../../lib/events/notify-agent";
+import { sendEventToClients, NotifyAgentDTO } from "../../lib/events/notify-agent";
 import aboutToConnect from "../../lib/documents/about_to_connect";
 import waitMusic from "../../lib/documents/wait-music";
 
@@ -30,7 +30,13 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
       MaxQueueSize 
     } = request.body;
 
-    sendEventToClients(Caller, company, queue); // TO-DO: Alterar o valor a ser enviado
+    const eventdata: NotifyAgentDTO = {
+      eventData: Caller, // TO-DO: Alterar o valor a ser enviado
+      filterCompanyId: company,
+      filterQueueId: queue ? queue : undefined
+    }
+
+    sendEventToClients(eventdata);
 
     return response.send(waitMusic());
   }

@@ -1,9 +1,8 @@
 import { Response, Request, Router } from "express";
-import { QueueSubscriber, Obj } from "../types";
+import { subscribersService as subscribers, ISubscriber } from "../core/subscribers";
+import { QueueSubscriber } from "../types";
 
 const router = Router(); 
-
-const subscribers: Obj = {};
 
 router.get('/', function (req: Request, res: Response) {
     res.setHeader('Content-Type', 'text/event-stream');
@@ -15,7 +14,13 @@ router.get('/', function (req: Request, res: Response) {
 
         const subscriber: QueueSubscriber = { companyId, queueId, res };
         //subscribers.push(subscriber);
-        subscribers[userId] = subscriber;
+        const data: ISubscriber = {
+            sub: subscriber,
+            userId: userId,
+        }
+
+        subscribers.sentData(data);
+        //subscribers[userId] = subscriber;
     
         req.on('close', () => {
             /*
@@ -23,7 +28,7 @@ router.get('/', function (req: Request, res: Response) {
             if (index !== -1) {
                 subscribers.splice(index, 1);
             }*/
-            delete subscribers[userId];
+            subscribers.unSubscriber(userId);
         });
     } catch (error) {
         return res.sendStatus(500);
