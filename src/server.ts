@@ -3,9 +3,15 @@ import bodyParser from "body-parser";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import RedisStore from "connect-redis";
 import path from "path";
 import pino from "express-pino-logger";
+
+import { redisClient } from "./core/redis";
 import { routes } from "./routes";
+import * as notifyEvents from "./events";
+
+const store = new RedisStore({ client: redisClient, prefix: "chatbot:" });
 
 const app = express();
 
@@ -24,6 +30,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 app.use(pino());
+
+app.use('/events', notifyEvents);
 
 // routes
 app.use(routes);

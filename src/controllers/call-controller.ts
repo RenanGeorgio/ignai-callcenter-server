@@ -30,8 +30,9 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
     if ((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)) {
       if (hasIvr) {
         // @ts-ignore
-        console.log('welcome')
-        response.send(welcome());
+        console.log('welcome');
+        const companyId = "1";
+        response.send(welcome(companyId));
       } else {
         if (isAValidPhoneNumber(new_oringin)) {
           // @ts-ignore
@@ -111,7 +112,7 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
   }
 };
 
-export const handleIncomingCall = (request: Request, response: Response, next: NextFunction) => {
+export const handleDirectIncomingCall = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log('incoming');
   try {
@@ -127,6 +128,65 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
     dial.client('Samuel');
     // @ts-ignore
     console.log('incoming 2');
+
+    response.set('Content-Type', 'text/xml');
+    response.send(client.toString());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleIncomingCall = (request: Request, response: Response, next: NextFunction) => {
+  const { Caller, From, To } = request.body;
+
+  const caller = From ? From : Caller;
+
+  let dial: any = undefined;
+  try {
+    const client = new twilio.twiml.VoiceResponse();
+
+    if (isAValidPhoneNumber(caller)) {
+      dial = client.dial({ callerId: caller, answerOnBridge: true });
+    } else {
+      dial = client.dial({ answerOnBridge: true });
+    }
+
+    // TO-DO: Usar o To (ou outro parametro confiavel) para descobrir a empresa
+    dial.queue({
+      url: '/about-to-connect',
+      method: 'POST'
+    }, 'support');
+
+    // @ts-ignore
+    console.log('respondendo')
+    response.set('Content-Type', 'text/xml');
+    response.send(client.toString());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleIncomingQueuedCall = (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { queue } = request.params;
+
+    const { Caller, From, To } = request.body;
+    const caller = From ? From : Caller;
+
+    const client = new twilio.twiml.VoiceResponse();
+
+    client.enqueue(
+      {
+        action: '/dequeue-action',
+        method: 'POST',
+        waitUrl: `/wait-room?queue=${queue}`,
+        waitUrlMethod: 'POST',
+  
+      }, 
+      queue // TO-DO: Pegar o nome correto
+    );
 
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());

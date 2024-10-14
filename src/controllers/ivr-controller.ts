@@ -13,8 +13,9 @@ export const goToMenu = (request: Request, response: Response, next: NextFunctio
 };
 
 export const goToWelcome = (request: Request, response: Response, next: NextFunction) => {
+  const companyId = "1";
   try {
-    response.send(welcome());
+    response.send(welcome(companyId));
   }
   catch (error) {
     next(error);

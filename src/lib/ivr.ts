@@ -1,6 +1,6 @@
 import twilio from "twilio";
 
-export function welcome() {
+export function welcome(companyId: string) {
   const client = new twilio.twiml.VoiceResponse();
 
   const action = client.gather({
@@ -54,7 +54,6 @@ export function planets(digit: string) {
     '2': '+19295566487',
     '3': '+17262043675',
     '4': '+16513582243',
-
   };
 
   // @ts-ignore
@@ -124,7 +123,7 @@ function listPlanets(): string {
       language: 'pt-BR',
       voice: 'Polly.Camila',
       loop: 3
-     },
+    },
     'Para chamar o planeta Broh doe As O G, pressione 2. Para chamar o planeta DuhGo ' +
     'bah, pressione 3. Para chamar um asteróide oober para sua localização, pressione 4. Para ' +
     'volte ao menu principal, pressione a tecla estrela '
@@ -137,7 +136,7 @@ function listPlanets(): string {
  * Retorna um xml com o redirecionamento
  * @return {String}
  */
-function serviceAgent(): string {
+function serviceAgent(agentId: string): string {
   const client = new twilio.twiml.VoiceResponse();
 
   client.say(
@@ -145,11 +144,11 @@ function serviceAgent(): string {
       language: 'pt-BR',
       voice: 'Polly.Ricardo',
       loop: 1
-     }, 
+    }, 
     'Encaminhando para atendimento'
   );
 
-  client.redirect('/incoming');
+  client.redirect(`/enqueue-incoming?agent=${agentId}`);
 
   return client.toString();
 }
@@ -166,7 +165,7 @@ function redirectWelcome(): string {
       language: 'pt-BR',
       voice: 'Polly.Ricardo',
       loop: 1
-     }, 
+    }, 
     'Voltando ao menu principal'
   );
 
