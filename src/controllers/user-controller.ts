@@ -1,6 +1,6 @@
+import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import Twilio from "../models/twilio";
-import { Request, Response, NextFunction } from "express";
 import mongoose from "../database/index";
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
