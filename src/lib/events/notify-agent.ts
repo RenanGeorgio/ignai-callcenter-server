@@ -21,7 +21,13 @@ export function sendEventToClients({ eventData, filterCompanyId, filterQueueId }
     if (companyId === filterCompanyId) {
       // @ts-ignore
       console.log(filterCompanyId);
-      res.write(`data: ${JSON.stringify(eventData)}\n\n`);
+      res.write(`data: {
+        agentName: ${key},
+        company: ${filterCompanyId},
+        queue: ${filterQueueId},
+        data: ${JSON.stringify(eventData)},
+        }\n\n`
+      );
     }
    // }
   });
