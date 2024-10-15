@@ -196,6 +196,32 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
   }
 };
 
+export const handleDequeueCall = (request: Request, response: Response, next: NextFunction) => {
+  const { From } = request.body;
+
+  if (!From) {
+    return response.status(400).send({ message: "Missing caller" });
+  }
+
+  try {
+    const { queue } = request.params;
+
+    const client = new twilio.twiml.VoiceResponse();
+    const dial = client.dial({ callerId: From, answerOnBridge: true });
+
+    dial.queue({
+      url: '/about-to-connect',
+      method: 'POST'
+    }, queue);
+
+    response.set('Content-Type', 'text/xml');
+    response.send(client.toString());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
 export const makeCall = (request: Request, response: Response, next: NextFunction) => {
   try {
     const client = twilio(config.twilio.accountSid, config.twilio.apiSecret);
