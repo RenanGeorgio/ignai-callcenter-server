@@ -11,12 +11,33 @@ router.get('/', function (req: Request, res: Response) {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    try {
-        const { companyId, queueId, userId } = req.query;
-        // @ts-ignore
-        console.log(req.query);
+    //const { companyId, queueId, userId } = req.query;
+    const { userId } = req.query;
+    // @ts-ignore
+    console.log(userId);
 
-        const subscriber: QueueSubscriber = { companyId, queueId, res };
+    if (!userId) {
+        return res.status(400).send({ message: "Missing required fields" });
+    }
+
+    try {
+        const agentData = await Agent.findOne({
+            $elemMatch: { _id: userId } 
+        });
+
+        if (!agentData) {
+            return res.status(400).send({ message: "Agent data Missing!" });
+        }
+
+        const { company, allowedQueues, role } = agentData;
+
+        const subscriber: QueueSubscriber = { 
+            companyId: company, 
+            queueIds: allowedQueues, 
+            agentRole: role
+            res 
+        };
+        
         //subscribers.push(subscriber);
         const data: ISubscriber = {
             sub: subscriber,

@@ -10,8 +10,7 @@ const agentSchema = new Schema({
   },
   company: {
     type : String,
-    required : true,
-    unique: true 
+    required : true
   },
   agentName: {
     type: String,
