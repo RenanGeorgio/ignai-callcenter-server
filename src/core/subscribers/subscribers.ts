@@ -14,7 +14,6 @@ export class SubscribersService {
   }
 
   public sentData({ sub, userId }: ISubscriber) {
-    const { companyId, queueId, res } = sub;
     const subscriber: QueueSubscriber = sub;
     
     this.subscribers[userId] = subscriber;
@@ -22,18 +21,6 @@ export class SubscribersService {
 
   public unSubscriber(userId: string): void {
     delete this.subscribers[userId];
-  }
-
-  public getData(botName: string = "ignaibot"): void {
-    directLine.activity$
-        .filter(activity => activity.type === ActivityTypes.Message && activity.from.id === botName)
-        .subscribe(
-            (message) => {
-                console.log("Activity added to BotService queue.")
-                console.log(message)
-                queue.add("BotService", { message });
-            }
-        )
   }
 
   static getInstance(): SubscribersService {

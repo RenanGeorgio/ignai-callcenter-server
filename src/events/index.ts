@@ -5,12 +5,16 @@ import { QueueSubscriber } from "../types";
 const router = Router(); 
 
 router.get('/', function (req: Request, res: Response) {
+    // @ts-ignore
+    console.log("event");
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
     try {
         const { companyId, queueId, userId } = req.query;
+        // @ts-ignore
+        console.log(req.query);
 
         const subscriber: QueueSubscriber = { companyId, queueId, res };
         //subscribers.push(subscriber);
@@ -18,6 +22,9 @@ router.get('/', function (req: Request, res: Response) {
             sub: subscriber,
             userId: userId,
         }
+
+        // @ts-ignore
+        console.log(data);
 
         subscribers.sentData(data);
         //subscribers[userId] = subscriber;

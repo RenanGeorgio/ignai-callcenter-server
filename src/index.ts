@@ -37,7 +37,7 @@ serverHttp.on('error', (error: any) => {
 });
 
 serverHttp.on('listening', () => {
-  client.enqueue('default');
+  //client.enqueue('default');
 
   /*workspace.setup().then(function (data) {
     app.set('workerInfo', data[0]);
@@ -51,12 +51,12 @@ serverHttp.on('listening', () => {
 
 mongoose.connection.once('open', () => {
   const result = mongoose.connection.readyState;
+  // @ts-ignore
   console.log('Connected to MongoDB', result);
 
-  // Create a change stream on the User model (collection level)
+  /*
   const changeStream = User.watch();
 
-  // Listen for changes in the User collection
   changeStream.on('change', (change) => {
     console.log('Change detected:', change);
 
@@ -74,7 +74,7 @@ mongoose.connection.once('open', () => {
       default:
         console.log('Other change type:', change);
     }
-  });
+  });*/
 });
 /*
 <Say> — Read text to the caller

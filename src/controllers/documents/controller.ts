@@ -4,6 +4,8 @@ import aboutToConnect from "../../lib/documents/about_to_connect";
 import waitMusic from "../../lib/documents/wait-music";
 
 export const toConnect = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log("to connect");
   try {
     const { 
       CallStatus, 
@@ -18,6 +20,22 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
       DequeingCallSid 
     } = request.body;
 
+    const value = { 
+      CallStatus, 
+      ForwardedFrom, 
+      ParentCallSid, 
+      Caller, 
+      From, 
+      To, 
+      QueueSid, 
+      CallSid, 
+      QueueTime, 
+      DequeingCallSid 
+    }
+
+    // @ts-ignore
+    console.log(value);
+
     return response.send(aboutToConnect());
   }
   catch (error) {
@@ -26,8 +44,15 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
 };
 
 export const toWaitRoom = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log("to wait room");
   try {
     const { queue, company } = request.params;
+    // @ts-ignore
+    console.log(request.query);
+
+    // @ts-ignore
+    console.log(request.params);
 
     const { 
       Caller, 
@@ -59,6 +84,9 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
       filterQueueId: queue ? queue : undefined
     }
 
+    // @ts-ignore
+    console.log(notifydata);
+
     sendEventToClients(notifydata);
 
     return response.send(waitMusic());
@@ -69,6 +97,8 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
 };
 
 export const toActionTake = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log("toActionTake");
   try {
     const { 
       Caller, 
@@ -78,6 +108,18 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
       QueueSid,
       QueueTime
     } = request.body;
+
+    const value = { 
+      Caller, 
+      From, 
+      To,
+      QueueResult,
+      QueueSid,
+      QueueTime
+    }
+
+    // @ts-ignore
+    console.log(value);
 
     return response.send(waitMusic());
   }

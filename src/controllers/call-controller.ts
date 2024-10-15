@@ -169,11 +169,19 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
 };
 
 export const handleIncomingQueuedCall = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log("handleIncomingQueuedCall");
   try {
     const { queue } = request.params;
 
+    // @ts-ignore
+    console.log(queue);
+
     const { Caller, From, To } = request.body;
     const caller = From ? From : Caller;
+
+    // @ts-ignore
+    console.log(request.body);
 
     const client = new twilio.twiml.VoiceResponse();
 
@@ -197,6 +205,8 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
 };
 
 export const handleDequeueCall = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log("handleDequeueCall");
   const { From } = request.body;
 
   if (!From) {
@@ -205,6 +215,8 @@ export const handleDequeueCall = (request: Request, response: Response, next: Ne
 
   try {
     const { queue } = request.params;
+    // @ts-ignore
+    console.log(queue);
 
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: From, answerOnBridge: true });
