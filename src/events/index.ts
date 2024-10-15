@@ -1,10 +1,11 @@
 import { Response, Request, Router } from "express";
 import { subscribersService as subscribers, ISubscriber } from "../core/subscribers";
 import { QueueSubscriber } from "../types";
+import { Agent } from "../models";
 
 const router = Router(); 
 
-router.get('/', function (req: Request, res: Response) {
+router.get('/', async function (req: Request, res: Response) {
     // @ts-ignore
     console.log("event");
     res.setHeader('Content-Type', 'text/event-stream');
@@ -34,7 +35,7 @@ router.get('/', function (req: Request, res: Response) {
         const subscriber: QueueSubscriber = { 
             companyId: company, 
             queueIds: allowedQueues, 
-            agentRole: role
+            agentRole: role,
             res 
         };
         

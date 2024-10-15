@@ -8,21 +8,21 @@ export interface NotifyAgentDTO {
 
 export function sendEventToClients({ eventData, filterCompanyId, filterQueueId }: NotifyAgentDTO) {
   // @ts-ignore
-  Object.entries(subscribers).forEach(([key, { companyId, queueId, res }]) => {
+  Object.entries(subscribers).forEach(([key, { companyId, queueIds, res }]) => {
     // @ts-ignore
-    console.log(queueId);
-    if (filterQueueId) {
+    console.log(queueIds);
+    /*if (filterQueueId) {
       if ((companyId === filterCompanyId) && (queueId === filterQueueId)) {
         // @ts-ignore
         console.log(filterCompanyId);
         res.write(`data: ${JSON.stringify(eventData)}\n\n`);
       }
-    } else {
-      if (companyId === filterCompanyId) {
-        // @ts-ignore
-        console.log(filterCompanyId);
-        res.write(`data: ${JSON.stringify(eventData)}\n\n`);
-      }
+    } else {*/
+    if (companyId === filterCompanyId) {
+      // @ts-ignore
+      console.log(filterCompanyId);
+      res.write(`data: ${JSON.stringify(eventData)}\n\n`);
     }
+   // }
   });
 }
