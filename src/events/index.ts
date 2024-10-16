@@ -23,12 +23,12 @@ router.get('/', async function (req: Request, res: Response) {
 
     try {
         const agentData = await Agent.findOne({
-            $elemMatch: { _id: userId } 
+            _id: userId
         });
 
-        if (!agentData) {
-            return res.status(400).send({ message: "Agent data Missing!" });
-        }
+        //if (!agentData) {
+        //    return res.status(400).send({ message: "Agent data Missing!" });
+        //}
 
         const { company, allowedQueues, role } = agentData;
 

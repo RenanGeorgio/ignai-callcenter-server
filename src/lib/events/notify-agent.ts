@@ -18,6 +18,17 @@ export function sendEventToClients({ eventData, filterCompanyId, filterQueueId }
         res.write(`data: ${JSON.stringify(eventData)}\n\n`);
       }
     } else {*/
+    
+    // TESTE
+    // @ts-ignore
+    console.log(filterCompanyId);
+    res.write(`data: {
+      agentName: ${key},
+      company: ${filterCompanyId},
+      queue: ${filterQueueId},
+      data: ${JSON.stringify(eventData)},
+      }\n\n`
+    );/*
     if (companyId === filterCompanyId) {
       // @ts-ignore
       console.log(filterCompanyId);
@@ -28,7 +39,7 @@ export function sendEventToClients({ eventData, filterCompanyId, filterQueueId }
         data: ${JSON.stringify(eventData)},
         }\n\n`
       );
-    }
+    }*/
    // }
   });
 }
