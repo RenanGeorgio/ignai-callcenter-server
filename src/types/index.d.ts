@@ -7,7 +7,8 @@ export type Obj = {
 
 export type QueueSubscriber = {
     companyId: string
-    queueId?: string | undefined
+    queueIds?: string[]
+    agentRole?: string
     res: Response
 }
 

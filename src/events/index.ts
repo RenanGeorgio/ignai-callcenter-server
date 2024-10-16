@@ -1,23 +1,52 @@
 import { Response, Request, Router } from "express";
 import { subscribersService as subscribers, ISubscriber } from "../core/subscribers";
 import { QueueSubscriber } from "../types";
+import { Agent } from "../models";
 
 const router = Router(); 
 
-router.get('/', function (req: Request, res: Response) {
+router.get('/', async function (req: Request, res: Response) {
+    // @ts-ignore
+    console.log("event");
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    try {
-        const { companyId, queueId, userId } = req.query;
+    //const { companyId, queueId, userId } = req.query;
+    const { userId } = req.query;
+    // @ts-ignore
+    console.log(userId);
 
-        const subscriber: QueueSubscriber = { companyId, queueId, res };
+    if (!userId) {
+        return res.status(400).send({ message: "Missing required fields" });
+    }
+
+    try {
+        const agentData = await Agent.findOne({
+            $elemMatch: { _id: userId } 
+        });
+
+        if (!agentData) {
+            return res.status(400).send({ message: "Agent data Missing!" });
+        }
+
+        const { company, allowedQueues, role } = agentData;
+
+        const subscriber: QueueSubscriber = { 
+            companyId: company, 
+            queueIds: allowedQueues, 
+            agentRole: role,
+            res 
+        };
+        
         //subscribers.push(subscriber);
         const data: ISubscriber = {
             sub: subscriber,
             userId: userId,
         }
+
+        // @ts-ignore
+        console.log(data);
 
         subscribers.sentData(data);
         //subscribers[userId] = subscriber;

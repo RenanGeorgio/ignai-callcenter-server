@@ -169,11 +169,19 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
 };
 
 export const handleIncomingQueuedCall = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log("handleIncomingQueuedCall");
   try {
     const { queue } = request.params;
 
+    // @ts-ignore
+    console.log(queue);
+
     const { Caller, From, To } = request.body;
     const caller = From ? From : Caller;
+
+    // @ts-ignore
+    console.log(request.body);
 
     const client = new twilio.twiml.VoiceResponse();
 
@@ -187,6 +195,53 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
       }, 
       queue // TO-DO: Pegar o nome correto
     );
+
+    response.set('Content-Type', 'text/xml');
+    response.send(client.toString());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleDequeueCall = (request: Request, response: Response, next: NextFunction) => {
+  // @ts-ignore
+  console.log("handleDequeueCall");
+  const { queueId } = request.query;
+  // @ts-ignore
+  console.log(queueId);
+
+  if (!queueId) {
+    return response.status(400).send({ message: "Missing queue identifier" }); 
+  }
+
+  try {
+    const { 
+      agentName,
+      company,
+      From,
+      To,
+      Caller,
+      position
+    } = request.body;
+
+    if (!From) {
+      return response.status(400).send({ message: "Missing caller" }); 
+    }
+    
+    const client = new twilio.twiml.VoiceResponse();
+    const dial = client.dial({ callerId: From, answerOnBridge: true });
+
+    // @ts-ignore
+    console.log(From);
+
+    dial.queue({
+      url: `/about-to-connect?queue=${queueId}`,
+      method: 'POST'
+    }, queueId);
+
+    // @ts-ignore
+    console.log("handleDequeueCall 2");
 
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());

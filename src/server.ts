@@ -9,7 +9,7 @@ import pino from "express-pino-logger";
 
 import { redisClient } from "./core/redis";
 import { routes } from "./routes";
-import * as notifyEvents from "./events";
+import notifyEvents from "./events";
 
 const store = new RedisStore({ client: redisClient, prefix: "chatbot:" });
 

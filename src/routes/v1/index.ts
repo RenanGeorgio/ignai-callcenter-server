@@ -36,6 +36,7 @@ routes
     .post('/direct-incoming', twilio.webhook({ validate: false }), CallController.handleDirectIncomingCall)
     .post('/enqueue-incoming', twilio.webhook({ validate: false }), CallController.handleIncomingQueuedCall)
     .post('/incoming', twilio.webhook({ validate: false }), CallController.handleIncomingCall)
+    .post('/dequeue-incoming', twilio.webhook({ validate: false }), CallController.handleDequeueCall)
     .post('/goodbye', identifyFrom, CallController.handleFinishCall)
     .post('/call', twilio.webhook({ validate: false }), CallController.handleCall)
 
@@ -61,8 +62,8 @@ routes
     .put('/company-messages', CompanyController.updateCompanyMessages)
 
     // documents
-    .post('/about-to-connect', DocumentsController.toConnect)
-    .post('/wait-room', DocumentsController.toWaitRoom)
+    .post('/about-to-connect', twilio.webhook({ validate: false }), DocumentsController.toConnect)
+    .post('/wait-room', twilio.webhook({ validate: false }), DocumentsController.toWaitRoom)
     .post('/dequeue-action', DocumentsController.toActionTake)
 
     // Test Server
