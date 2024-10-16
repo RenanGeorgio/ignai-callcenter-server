@@ -136,8 +136,9 @@ function listPlanets(): string {
  * Retorna um xml com o redirecionamento
  * @return {String}
  */
-function serviceAgent(agentId: string): string {
+function serviceAgent(): string {
   const client = new twilio.twiml.VoiceResponse();
+  const queue = "default";
 
   client.say(
     { 
@@ -147,8 +148,8 @@ function serviceAgent(agentId: string): string {
     }, 
     'Encaminhando para atendimento'
   );
-
-  client.redirect(`/enqueue-incoming?agent=${agentId}`);
+ 
+  client.redirect(`/enqueue-incoming?queue=${queue}`);
 
   return client.toString();
 }

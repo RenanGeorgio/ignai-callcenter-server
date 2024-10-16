@@ -48,7 +48,7 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log("to wait room");
   try {
-    const { queue, company } = request.params;
+    const { queue, company } = request.query;
     // @ts-ignore
     console.log(request.query);
 

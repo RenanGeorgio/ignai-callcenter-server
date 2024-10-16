@@ -172,7 +172,7 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
   // @ts-ignore
   console.log("handleIncomingQueuedCall");
   try {
-    const { queue } = request.params;
+    const { queue } = request.query;
 
     // @ts-ignore
     console.log(queue);
@@ -184,12 +184,12 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
     console.log(request.body);
 
     const client = new twilio.twiml.VoiceResponse();
-
+    const company = "company"
     client.enqueue(
       {
         action: '/dequeue-action',
         method: 'POST',
-        waitUrl: `/wait-room?queue=${queue}`,
+        waitUrl: `/wait-room?queue=${queue}&company=${company}`,
         waitUrlMethod: 'POST',
   
       }, 
