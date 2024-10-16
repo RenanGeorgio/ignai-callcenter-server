@@ -1,3 +1,4 @@
+import { Response } from "express";
 import { WebsocketUser } from "./types";
 
 export type Obj = {
@@ -15,6 +16,13 @@ export type WelcomeValues = {
     voice?: string
     loop?: number
     messages: string[]
+}
+
+export type QueueSubscriber = {
+    companyId: string
+    queueIds?: string[]
+    agentRole?: string
+    res: Response
 }
 
 export {

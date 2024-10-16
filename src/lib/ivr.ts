@@ -112,6 +112,27 @@ export function agents(digit: string, agentList: string[]) {
 
   return redirectWelcome();
 };
+  
+  /**
+ * Retorna um xml com o redirecionamento
+ * @return {String}
+ */
+function serviceAgent(agentId: string): string {
+  const client = new twilio.twiml.VoiceResponse();
+
+  client.say(
+    { 
+      language: 'pt-BR',
+      voice: 'Polly.Ricardo',
+      loop: 1
+    }, 
+    'Encaminhando para atendimento'
+  );
+
+  client.redirect(`/enqueue-incoming?agent=${agentId}`);
+
+  return redirectWelcome();
+};
 
 /**
  * Retorna um xml com o redirecionamento
@@ -125,7 +146,7 @@ function redirectWelcome(): string {
       language: 'pt-BR',
       voice: 'Polly.Ricardo',
       loop: 1
-     }, 
+    }, 
     'Voltando ao menu principal'
   );
 

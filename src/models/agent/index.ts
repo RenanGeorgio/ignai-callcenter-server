@@ -3,13 +3,14 @@ import mongoose from "../../database";
 const { Schema } = mongoose;
 
 const agentSchema = new Schema({
+  _id: {
+    type : String,
+    required : true,
+    unique: true 
+  },
   company: {
     type : String,
-    required : true 
-  },
-  phoneNumber: {
-    type: String,
-    required: true
+    required : true
   },
   agentName: {
     type: String,
@@ -17,8 +18,26 @@ const agentSchema = new Schema({
   },
   role: {
     type: String,
-    default: 'employ'
+    default: 'worker'
   },
+  status: {
+    type: String,
+    required: true
+  },
+  allowedPhones: [
+    {
+      phoneNumber: {
+        type: String
+      }
+    }
+  ],
+  allowedQueues: [
+    {
+      queue: {
+        type : String
+      }
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now

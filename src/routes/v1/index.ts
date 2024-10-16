@@ -10,6 +10,12 @@ import * as TokenController from "../../controllers/token-controller";
 import * as CallController from "../../controllers/call-controller";
 import * as IvrController from "../../controllers/ivr-controller";
 
+// Company
+import * as CompanyController from "../../controllers/company-controller";
+
+// Documents
+import * as DocumentsController from "../../controllers/documents/controller";
+
 // Server
 import Server from "../../controllers/server";
 
@@ -17,7 +23,10 @@ routes
     // call
     .post('/token', TokenController.getToken)
     .post('/outgoing', CallController.handleOutgoingCall)
+    .post('/direct-incoming', twilio.webhook({ validate: false }), CallController.handleDirectIncomingCall)
+    .post('/enqueue-incoming', twilio.webhook({ validate: false }), CallController.handleIncomingQueuedCall)
     .post('/incoming', twilio.webhook({ validate: false }), CallController.handleIncomingCall)
+    .post('/dequeue-incoming', twilio.webhook({ validate: false }), CallController.handleDequeueCall)
     .post('/goodbye', CallController.handleFinishCall)
     .post('/call', twilio.webhook({ validate: false }), CallController.handleCall)
 
@@ -27,6 +36,27 @@ routes
     .post('/router', twilio.webhook({ validate: false }), IvrController.goToRouterFlow)
     .post('/tasks', twilio.webhook({ validate: false }), IvrController.goToTaskFlow)
     .post('/agents', twilio.webhook({ validate: false }), IvrController.goToAgents)
+
+    // company
+    .get('/companies', CompanyController.listCompanies)
+    .post('/create-company', CompanyController.createCompany)
+    .get('/company/find-name', CompanyController.findCompanyByName)
+    .get('/company/find-id', CompanyController.findCompanyById)
+    .post('/company-queues', CompanyController.updateCompanyQueues)
+    .put('/company-queues', CompanyController.updateCompanyQueues)
+    .post('/company-phone', CompanyController.updateCompanyPhone)
+    .put('/company-phone', CompanyController.updateCompanyPhone)
+    .post('/company-welcome', CompanyController.updateCompanyWelcome)
+    .put('/company-welcome', CompanyController.updateCompanyWelcome)
+    .post('/company-menu', CompanyController.updateCompanyMenu)
+    .put('/company-menu', CompanyController.updateCompanyMenu)
+    .post('/company-messages', CompanyController.updateCompanyMessages)
+    .put('/company-messages', CompanyController.updateCompanyMessages)
+
+    // documents
+    .post('/about-to-connect', twilio.webhook({ validate: false }), DocumentsController.toConnect)
+    .post('/wait-room', twilio.webhook({ validate: false }), DocumentsController.toWaitRoom)
+    .post('/dequeue-action', DocumentsController.toActionTake)
 
     // Test Server
     .get('/server', Server.status)

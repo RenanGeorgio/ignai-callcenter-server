@@ -1,8 +1,12 @@
 import http from "http";
 import { Server } from "socket.io";
+import twilio from "twilio";
+
 import app from "../server";
 
 const serverHttp = http.createServer(app);
+
+const client = new twilio.twiml.VoiceResponse();
 
 const io = new Server(serverHttp, {
   cors: {
@@ -12,10 +16,10 @@ const io = new Server(serverHttp, {
 });
 
 const io_server = new Server(serverHttp, {
-    cors: {
-        origin: '*',
-    },
-    path: '/commands',
+  cors: {
+    origin: '*',
+  },
+  path: '/commands',
 });
 
-export { serverHttp, io, io_server };
+export { serverHttp, io, io_server, client };
