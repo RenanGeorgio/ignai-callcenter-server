@@ -4,14 +4,18 @@ import { setCompanyAgents } from "../lib/online-agents";
 import { Agent } from "../models";
 import config from "../config/env";
 
-export const getToken = async (request: Request, response: Response, next: NextFunction) => {
+export const getToken = async (
+  request: Request,
+  response: Response,
+  next: NextFunction
+) => {
   const accountSid = config.twilio.accountSid;
   const apiKey = config.twilio.apiKey;
   const apiSecret = config.twilio.apiSecret;
   const appSid = config.twilio.outgoingApplicationSid;
 
   if (!accountSid || !apiKey || !apiSecret) {
-    throw new Error("accountSid, apiKey or apiSecret not present.")
+    throw new Error("accountSid, apiKey or apiSecret not present.");
   }
 
   const AccessToken = twilio.jwt.AccessToken;
@@ -36,11 +40,14 @@ export const getToken = async (request: Request, response: Response, next: NextF
     accessToken.addGrant(voiceGrant);
 
     const agentData = await Agent.findOne({
-      $elemMatch: { agentName: identity } 
+      agentName: identity,
     });
 
     if (agentData) {
-      setCompanyAgents(agentData.company, agentData.allowedQueues, agentData.agentName);
+      const allowedQueues = agentData.allowedQueues.map(
+        (queue) => queue.queue || ""
+      );
+      setCompanyAgents(agentData.company, allowedQueues, agentData.agentName);
     }
     /*
     const headers = {
@@ -51,15 +58,14 @@ export const getToken = async (request: Request, response: Response, next: NextF
     };
           
     response.setHeaders(headers);*/
-    response.set('Content-Type', 'application/json');
-    response.send(JSON.stringify(
-      {
+    response.set("Content-Type", "application/json");
+    response.send(
+      JSON.stringify({
         identity: identity,
-        token: accessToken.toJwt()
-      }
-    ));
-  }
-  catch (error) {
+        token: accessToken.toJwt(),
+      })
+    );
+  } catch (error) {
     next(error);
   }
 };

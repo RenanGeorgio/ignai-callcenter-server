@@ -13,7 +13,7 @@ router.get('/', async function (req: Request, res: Response) {
     res.setHeader('Connection', 'keep-alive');
 
     //const { companyId, queueId, userId } = req.query;
-    const { userId } = req.query;
+    const userId = req.query.userId as string;
     // @ts-ignore
     console.log(userId);
 
@@ -22,13 +22,18 @@ router.get('/', async function (req: Request, res: Response) {
     }
 
     try {
-        const agentData = await Agent.findOne({
-            _id: userId
-        });
+        // const agentData = await Agent.findOne({
+        //     _id: userId
+        // });
 
         //if (!agentData) {
         //    return res.status(400).send({ message: "Agent data Missing!" });
         //}
+        const agentData = {
+            company: "company",
+            allowedQueues: ["default"],
+            role: "role"
+        }
 
         const { company, allowedQueues, role } = agentData;
 

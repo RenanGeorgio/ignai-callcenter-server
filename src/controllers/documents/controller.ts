@@ -86,7 +86,7 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
     }
 
     // @ts-ignore
-    console.log(notifydata);
+    console.log('notify data: ', notifydata);
 
     sendEventToClients(notifydata);
 
