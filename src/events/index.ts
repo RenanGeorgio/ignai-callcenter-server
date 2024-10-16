@@ -1,5 +1,5 @@
 import { Response, Request, Router } from "express";
-import { subscribersService as subscribers, ISubscriber } from "../core/subscribers";
+import { subscribersService, ISubscriber } from "../core/subscribers";
 import { QueueSubscriber } from "../types";
 
 const router = Router(); 
@@ -35,7 +35,7 @@ router.get('/', function (req: Request, res: Response) {
         // @ts-ignore
         console.log(data);
 
-        subscribers.sentData(data);
+        subscribersService.sentData(data);
         //subscribers[userId] = subscriber;
     
         req.on('close', () => {
@@ -44,7 +44,7 @@ router.get('/', function (req: Request, res: Response) {
             if (index !== -1) {
                 subscribers.splice(index, 1);
             }*/
-            subscribers.unSubscriber(userId);
+            subscribersService.unSubscriber(userId);
         });
     } catch (error) {
         return res.sendStatus(500);
