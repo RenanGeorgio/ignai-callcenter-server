@@ -52,8 +52,8 @@ routes
     .put('/company-messages', CompanyController.updateCompanyMessages)
 
     // documents
-    .post('/about-to-connect', DocumentsController.toConnect)
-    .post('/wait-room', DocumentsController.toWaitRoom)
+    .post('/about-to-connect', twilio.webhook({ validate: false }), DocumentsController.toConnect)
+    .post('/wait-room', twilio.webhook({ validate: false }), DocumentsController.toWaitRoom)
     .post('/dequeue-action', DocumentsController.toActionTake)
 
     // Test Server

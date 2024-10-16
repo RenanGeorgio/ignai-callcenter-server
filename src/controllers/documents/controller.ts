@@ -6,6 +6,7 @@ import waitMusic from "../../lib/documents/wait-music";
 export const toConnect = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("to connect");
+  const { queue } = request.query;
   try {
     const { 
       CallStatus, 
