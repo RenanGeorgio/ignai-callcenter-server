@@ -1,11 +1,10 @@
 import { Response, Request, Router } from "express";
 import { subscribersService as subscribers, ISubscriber } from "../core/subscribers";
 import { QueueSubscriber } from "../types";
-import { Agent } from "../models";
 
 const router = Router(); 
 
-router.get('/', async function (req: Request, res: Response) {
+router.get('/', function (req: Request, res: Response) {
     // @ts-ignore
     console.log("event");
     res.setHeader('Content-Type', 'text/event-stream');
@@ -13,7 +12,7 @@ router.get('/', async function (req: Request, res: Response) {
     res.setHeader('Connection', 'keep-alive');
 
     //const { companyId, queueId, userId } = req.query;
-    const { userId } = req.query;
+    const { userId, company } = req.query;
     // @ts-ignore
     console.log(userId);
 
@@ -22,20 +21,8 @@ router.get('/', async function (req: Request, res: Response) {
     }
 
     try {
-        const agentData = await Agent.findOne({
-            _id: userId
-        });
-
-        //if (!agentData) {
-        //    return res.status(400).send({ message: "Agent data Missing!" });
-        //}
-
-        const { company, allowedQueues, role } = agentData;
-
         const subscriber: QueueSubscriber = { 
             companyId: company, 
-            queueIds: allowedQueues, 
-            agentRole: role,
             res 
         };
         

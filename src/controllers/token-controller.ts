@@ -3,6 +3,7 @@ import twilio from "twilio";
 import { setCompanyAgents } from "../lib/online-agents";
 import { Agent } from "../models";
 import config from "../config/env";
+import { Obj } from "../types";
 
 export const getToken = async (request: Request, response: Response, next: NextFunction) => {
   const accountSid = config.twilio.accountSid;
@@ -11,7 +12,7 @@ export const getToken = async (request: Request, response: Response, next: NextF
   const appSid = config.twilio.outgoingApplicationSid;
 
   if (!accountSid || !apiKey || !apiSecret) {
-    throw new Error("accountSid, apiKey or apiSecret not present.")
+    throw new Error("accountSid, apiKey or apiSecret not present.");
   }
 
   const AccessToken = twilio.jwt.AccessToken;
@@ -36,11 +37,12 @@ export const getToken = async (request: Request, response: Response, next: NextF
     accessToken.addGrant(voiceGrant);
 
     const agentData = await Agent.findOne({
-      $elemMatch: { agentName: identity } 
+      agentName: identity
     });
 
     if (agentData) {
-      setCompanyAgents(agentData.company, agentData.allowedQueues, agentData.agentName);
+      const allowedQueues: string[] = agentData.allowedQueues.map((allowedQueue: Obj) => allowedQueue.queue || "");
+      setCompanyAgents(agentData.company, allowedQueues, agentData.agentName);
     }
     /*
     const headers = {

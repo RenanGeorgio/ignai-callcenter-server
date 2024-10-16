@@ -7,20 +7,21 @@ export interface ISubscriber {
 
 export class SubscribersService {
   static _instance: SubscribersService;
-  subscribers: Obj;
+  subscribers: ISubscriber[];
 
   constructor() {
-    this.subscribers = {};
+    this.subscribers = [];
   }
 
   public sentData({ sub, userId }: ISubscriber) {
-    const subscriber: QueueSubscriber = sub;
+    const subscriber = { sub, userId };
     
-    this.subscribers[userId] = subscriber;
+    this.subscribers.push(subscriber);
   }
 
   public unSubscriber(userId: string): void {
-    delete this.subscribers[userId];
+    const newSubscribers = this.subscribers.filter(subscriber => subscriber?.userId !== userId);
+    this.subscribers = newSubscribers;
   }
 
   static getInstance(): SubscribersService {
