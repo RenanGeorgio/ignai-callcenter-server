@@ -3,6 +3,7 @@ import twilio from "twilio";
 import { setCompanyAgents } from "../lib/online-agents";
 import { Agent } from "../models";
 import config from "../config/env";
+import { Obj } from "../types";
 
 export const getToken = async (
   request: Request,
@@ -40,13 +41,11 @@ export const getToken = async (
     accessToken.addGrant(voiceGrant);
 
     const agentData = await Agent.findOne({
-      agentName: identity,
+      agentName: identity
     });
 
     if (agentData) {
-      const allowedQueues = agentData.allowedQueues.map(
-        (queue) => queue.queue || ""
-      );
+      const allowedQueues: string[] = agentData.allowedQueues.map((allowedQueue: Obj) => allowedQueue.queue || "");
       setCompanyAgents(agentData.company, allowedQueues, agentData.agentName);
     }
     /*

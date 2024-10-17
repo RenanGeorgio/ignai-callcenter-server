@@ -1,11 +1,10 @@
 import { Response, Request, Router } from "express";
-import { subscribersService as subscribers, ISubscriber } from "../core/subscribers";
+import { subscribersService, ISubscriber } from "../core/subscribers";
 import { QueueSubscriber } from "../types";
-import { Agent } from "../models";
 
 const router = Router(); 
 
-router.get('/', async function (req: Request, res: Response) {
+router.get('/', function (req: Request, res: Response) {
     // @ts-ignore
     console.log("event");
     res.setHeader('Content-Type', 'text/event-stream');
@@ -13,7 +12,8 @@ router.get('/', async function (req: Request, res: Response) {
     res.setHeader('Connection', 'keep-alive');
 
     //const { companyId, queueId, userId } = req.query;
-    const userId = req.query.userId as string;
+    const { userId, company } = req.query;
+
     // @ts-ignore
     console.log(userId);
 
@@ -22,25 +22,8 @@ router.get('/', async function (req: Request, res: Response) {
     }
 
     try {
-        // const agentData = await Agent.findOne({
-        //     _id: userId
-        // });
-
-        //if (!agentData) {
-        //    return res.status(400).send({ message: "Agent data Missing!" });
-        //}
-        const agentData = {
-            company: "company",
-            allowedQueues: ["default"],
-            role: "role"
-        }
-
-        const { company, allowedQueues, role } = agentData;
-
         const subscriber: QueueSubscriber = { 
             companyId: company, 
-            queueIds: allowedQueues, 
-            agentRole: role,
             res 
         };
         
@@ -53,7 +36,7 @@ router.get('/', async function (req: Request, res: Response) {
         // @ts-ignore
         console.log(data);
 
-        subscribers.sentData(data);
+        subscribersService.sentData(data);
         //subscribers[userId] = subscriber;
     
         req.on('close', () => {
@@ -62,7 +45,7 @@ router.get('/', async function (req: Request, res: Response) {
             if (index !== -1) {
                 subscribers.splice(index, 1);
             }*/
-            subscribers.unSubscriber(userId);
+            subscribersService.unSubscriber(userId);
         });
     } catch (error) {
         return res.sendStatus(500);
