@@ -187,11 +187,10 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
     const company = "company"
     client.enqueue(
       {
-        action: '/dequeue-action',
+        action: `/dequeue-action?company=${company}`,
         method: 'POST',
         waitUrl: `/wait-room?queue=${queue}&company=${company}`,
         waitUrlMethod: 'POST',
-  
       }, 
       queue // TO-DO: Pegar o nome correto
     );
