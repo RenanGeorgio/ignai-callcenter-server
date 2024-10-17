@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { sendEventToClients, NotifyAgentDTO } from "../../lib/events/notify-agent";
-import aboutToConnect from "../../lib/documents/about_to_connect";
-import waitMusic from "../../lib/documents/wait-music";
+import { sendEventToClients, NotifyAgentDTO, sendDisconnectEventToClients, DisconnectAgentDTO } from "../../lib/events/notify-agent";
+import { failedConnection, aboutToConnect, waitMusic, enqueueFailed } from "../../lib/documents";
+import { CALL_STATUS, QUEUE_RESULT_STATUS } from "../../assets/constants";
 
 export const toConnect = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
@@ -52,13 +52,12 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
     // @ts-ignore
     console.log(request.query);
 
-    // @ts-ignore
-    console.log(request.params);
-
     const { 
+      CallSid,
       Caller, 
       From, 
       To,
+      CallStatus,
       QueuePosition, 
       QueueSid, 
       QueueTime, 
@@ -67,7 +66,12 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
       MaxQueueSize 
     } = request.body;
 
+    if ((CallStatus === CALL_STATUS.FAILED) || (CallStatus === CALL_STATUS.CANCELED)){
+      return response.send(enqueueFailed());
+    }
+
     const eventdata = {
+      CallSid,
       Caller, 
       From, 
       To,
@@ -100,8 +104,11 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
 export const toActionTake = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("toActionTake");
+
+  const { company } = request.query;
   try {
     const { 
+      CallSid,
       Caller, 
       From, 
       To,
@@ -110,17 +117,32 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
       QueueTime
     } = request.body;
 
-    const value = { 
+    const eventdata = { 
+      CallSid,
       Caller, 
       From, 
       To,
-      QueueResult,
       QueueSid,
       QueueTime
     }
 
-    // @ts-ignore
-    console.log(value);
+    const notifydata: DisconnectAgentDTO = {
+      eventData: eventdata,
+      filterCompanyId: company,
+    }
+
+    if (QueueResult === QUEUE_RESULT_STATUS.HANGUP) {
+      sendDisconnectEventToClients(notifydata, QueueResult);
+
+      return response.send();
+    } else if ((QueueResult === QUEUE_RESULT_STATUS.ERROR) || (QueueResult === QUEUE_RESULT_STATUS.SYSTEM_ERROR)) {
+      sendDisconnectEventToClients(notifydata, "queueerror");
+
+      return response.send(failedConnection());
+    } else {
+      // @ts-ignore
+      console.log(value);
+    }
 
     return response.send(waitMusic());
   }
