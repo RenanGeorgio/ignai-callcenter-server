@@ -47,7 +47,7 @@ export const listMembers = async (request: Request, response: Response, next: Ne
 };
 
 export const listClientMembers = async (request: Request, response: Response, next: NextFunction) => {
-  const m: Obj[] = [];
+  const calls: Obj[] = [];
 
   const accountSid = config.twilio.accountSid;
   const authToken = config.twilio.authToken;
@@ -60,7 +60,19 @@ export const listClientMembers = async (request: Request, response: Response, ne
     // TO-DO: pegar queue ativas para esta empresa
     const members = await client.queues(queue.sid).members.list({ limit: 1000 });
 
-    return response.status(201).send({ members });
+    const queuedCalls = members.queue_members;
+
+    queuedCalls.forEach(async (queuedCall: Obj) => {
+      const callSid = queuedCall['call_sid'];
+
+      const call = await client.calls(callSid).fetch();
+      
+      if (call) {
+        calls.push(call);
+      }
+    });
+
+    return response.status(201).send({ members: calls });
   }
   catch (error) {
     next(error);
