@@ -10,6 +10,9 @@ import * as TokenController from "../../controllers/token-controller";
 import * as CallController from "../../controllers/call-controller";
 import * as IvrController from "../../controllers/ivr-controller";
 
+// Queue
+import * as QueueController from "../../controllers/queue-controller";
+
 // Company
 import * as CompanyController from "../../controllers/company-controller";
 
@@ -34,6 +37,9 @@ routes
     .post('/welcome', twilio.webhook({ validate: false }), IvrController.goToWelcome)
     .post('/menu', twilio.webhook({ validate: false }), IvrController.goToMenu)
     .post('/planets', twilio.webhook({ validate: false }), IvrController.goToPlanets)
+
+    // queue
+    .get('/queue/list', QueueController.list)
 
     // company
     .get('/companies', CompanyController.listCompanies)
