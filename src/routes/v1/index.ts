@@ -40,6 +40,8 @@ routes
 
     // queue
     .get('/queue/list', QueueController.list)
+    .get('/queue/list-members', QueueController.listMembers)
+    .get('/queue/clients', QueueController.listClientMembers)
 
     // company
     .get('/companies', CompanyController.listCompanies)
