@@ -68,7 +68,22 @@ export const listClientMembers = async (request: Request, response: Response, ne
       const call = await client.calls(callSid).fetch();
       
       if (call) {
-        calls.push(call);
+        const info = {
+          company: company,
+          queue: queuedCall.friendly_name,
+          data: {
+            CallSid: callSid,
+            Caller: call['caller_name'], 
+            From: call['from'], 
+            To: call['to'],
+            QueuePosition: queuedCall['position'], 
+            QueueSid: queuedCall['queue_sid'], 
+            QueueTime: call['queue_time'], 
+            CurrentQueueSize: queuedCalls.length
+          }
+        }
+
+        calls.push(info);
       }
     });
 
