@@ -89,6 +89,10 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
       filterQueueId: queue ? queue : undefined
     }
 
+    if ((CurrentQueueSize == 100) || (CurrentQueueSize === MaxQueueSize)) {
+      generateNewQueue(queue, company);
+    }
+
     // @ts-ignore
     console.log(notifydata);
 
