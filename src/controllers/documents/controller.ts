@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { sendEventToClients, NotifyAgentDTO, sendDisconnectEventToClients, DisconnectAgentDTO } from "../../lib/events/notify-agent";
-import { failedConnection, aboutToConnect, waitMusic, enqueueFailed } from "../../lib/documents";
+import { failedConnection, aboutToConnect, waitMusic, enqueueFailed, finishCall } from "../../lib/documents";
+import { generateNewQueue } from "../../helpers/queue";
 import { CALL_STATUS, QUEUE_RESULT_STATUS } from "../../assets/constants";
 
 export const toConnect = (request: Request, response: Response, next: NextFunction) => {
@@ -148,7 +149,7 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
       console.log(value);
     }
 
-    return response.send(waitMusic());
+    return response.send(finishCall(QueueSid));
   }
   catch (error) {
     next(error);
