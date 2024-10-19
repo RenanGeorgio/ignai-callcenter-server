@@ -1,12 +1,14 @@
 import http from "http";
 import { Server } from "socket.io";
-import twilio from "twilio";
 
 import app from "../server";
+import queueApp from "../queue-server";
+import { QueueAmqpService } from "./amqp/amqp-queue";
 
 const serverHttp = http.createServer(app);
+const queueHttp = http.createServer(queueApp);
 
-const client = new twilio.twiml.VoiceResponse();
+const amqpService = QueueAmqpService.getInstance();
 
 const io = new Server(serverHttp, {
   cors: {
@@ -22,4 +24,4 @@ const io_server = new Server(serverHttp, {
   path: '/commands',
 });
 
-export { serverHttp, io, io_server, client };
+export { serverHttp, io, io_server, queueHttp, amqpService };

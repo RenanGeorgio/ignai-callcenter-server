@@ -7,6 +7,9 @@ const config = {
     port: process.env.PORT || 6060,
     database: process.env.MONGO_URL ? process.env.MONGO_URL.replace(/[\\"]/g, '') : "",
   },
+  queue: {
+    queuePort: process.env.QUEUE_PORT || 6060
+  },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || '6379',

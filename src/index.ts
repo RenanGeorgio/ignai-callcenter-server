@@ -4,11 +4,21 @@ import * as dotenv from "dotenv";
 dotenv.config()
 
 import config from "./config/env";
-import { serverHttp, client } from "./core/http";
+import { serverHttp, queueHttp, amqpService } from "./core/http";
+import { connectQueue } from "./core/amqp/connect-queue";
 import mongoose from "./database";
 import "./websocket";
 
-const port = config.app.port || 6060;
+connectQueue(amqpService);
+
+const queue_port = config.queue.queuePort;
+
+queueHttp.listen(queue_port, () => {
+  // @ts-ignore
+  console.log("queue server is running");
+});
+
+const port = config.app.port;
 
 serverHttp.listen(port, () =>  {
   // @ts-ignore
