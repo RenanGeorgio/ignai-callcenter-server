@@ -10,7 +10,8 @@ export const handleMsg = (request: Request, response: Response, next: NextFuncti
 
     sendData(data);
 
-    console.log("A message is sent to queue")
+    // @ts-ignore
+    console.log("A message is sent to queue");
     response.send("Message Sent");
   }
   catch (error) {

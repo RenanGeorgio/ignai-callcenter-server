@@ -1,15 +1,15 @@
 import amqp from "amqplib";
 import { QueueAmqpService } from "./amqp-queue";
+import config from "../../config/env";
 
 export async function connectQueue(amqpService: QueueAmqpService) {
   try {
-    amqpService.connection = await amqp.connect("amqp://localhost:5672");
-    amqpService.channel = await amqpService.connection.createChannel()
+    amqpService.connection = await amqp.connect(config.queue.amqp);
+    amqpService.channel = await amqpService.connection.createChannel();
     
-    // connect to 'test-queue', create one if doesnot exist already
-    await amqpService.channel.assertQueue("test-queue")
+    await amqpService.channel.assertQueue("callcenter", { durable: true });
   } catch (error: any) {
     // @ts-ignore
-    console.log(error)
+    console.log(error);
   }
 }

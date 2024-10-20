@@ -49,6 +49,13 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log("to wait room");
   try {
+    const enquedeCall = async (data: any) => {
+      const result = await fetch('/send-msg', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    };
+
     const { queue, company } = request.query;
     // @ts-ignore
     console.log(request.query);
@@ -67,7 +74,7 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
       MaxQueueSize 
     } = request.body;
 
-    if ((CallStatus === CALL_STATUS.FAILED) || (CallStatus === CALL_STATUS.CANCELED)){
+    if ((CallStatus === CALL_STATUS.FAILED) || (CallStatus === CALL_STATUS.CANCELED)) {
       return response.send(enqueueFailed());
     }
 
@@ -96,6 +103,9 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
 
     // @ts-ignore
     console.log(notifydata);
+
+    // TO-DO: colocar este processo na fila
+    enquedeCall(notifydata);
 
     sendEventToClients(notifydata);
 

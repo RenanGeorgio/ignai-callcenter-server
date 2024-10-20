@@ -8,7 +8,8 @@ const config = {
     database: process.env.MONGO_URL ? process.env.MONGO_URL.replace(/[\\"]/g, '') : "",
   },
   queue: {
-    queuePort: process.env.QUEUE_PORT || 6060
+    queuePort: process.env.QUEUE_PORT || 5672,
+    amqp: process.env.AMQP_URL || "amqp://localhost:5672"
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
