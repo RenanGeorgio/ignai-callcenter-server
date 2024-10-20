@@ -1,8 +1,9 @@
 import amqp from "amqplib";
+import config from "../../config/env";
 
 export async function listenerQueue() {
   try {
-    const connection = await amqp.connect("amqp://localhost:5672");
+    const connection = await amqp.connect(config.queue.amqp);
     const channel = await connection.createChannel();
     
     // PESQUISAR O PQ DISSO
