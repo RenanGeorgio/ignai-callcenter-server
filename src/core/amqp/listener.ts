@@ -1,17 +1,9 @@
-const express = require("express");
-const app = express();
-app.use(express.json());
+import amqp from "amqplib";
 
-const PORT = process.env.PORT || 4002;
-
-const amqp = require("amqplib");
-
-
-listenerQueue() // call connectQueue function
-async function listenerQueue() {
+export async function listenerQueue() {
   try {
     const connection = await amqp.connect("amqp://localhost:5672");
-    const channel = await connection.createChannel()
+    const channel = await connection.createChannel();
     
     // PESQUISAR O PQ DISSO
     process.once("SIGINT", async () => {

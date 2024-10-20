@@ -4,11 +4,11 @@ import * as dotenv from "dotenv";
 dotenv.config()
 
 import { serverHttp, queueHttp } from "./core/http";
+import { listenerQueue } from "./core/amqp/listener";
 import mongoose from "./database";
 import "./websocket";
 
 import config from "./config/env";
-
 
 const queue_port = config.queue.queuePort;
 
@@ -57,6 +57,8 @@ serverHttp.on('listening', () => {
     throw error;
   });*/
 });
+
+listenerQueue();
 
 mongoose.connection.once('open', () => {
   const result = mongoose.connection.readyState;
