@@ -1,14 +1,10 @@
 import http from "http";
 import { Server } from "socket.io";
-
 import app from "../server";
-import queueApp from "../queue-server";
-import { QueueAmqpService } from "./amqp/amqp-queue";
+import { queueApp, amqpService } from "../queue-server";
 
 const serverHttp = http.createServer(app);
 const queueHttp = http.createServer(queueApp);
-
-const amqpService = QueueAmqpService.getInstance();
 
 const io = new Server(serverHttp, {
   cors: {
