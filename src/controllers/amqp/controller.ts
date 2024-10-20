@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { sendData } from "../../lib/mq-messages";
+import { amqpService } from "../../core/http";
 
 export const handleMsg = (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -8,7 +8,7 @@ export const handleMsg = (request: Request, response: Response, next: NextFuncti
       author: "Leigh Burdugo"
     }
 
-    sendData(data);
+    amqpService.sendData(data);
 
     // @ts-ignore
     console.log("A message is sent to queue");
