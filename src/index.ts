@@ -3,8 +3,7 @@ import "express-async-errors";
 import * as dotenv from "dotenv";
 dotenv.config()
 
-import { serverHttp, queueHttp } from "./core/http";
-import { listenerQueue } from "./core/amqp/listener";
+import { serverHttp, queueHttp, listenerQueue } from "./core/http";
 import mongoose from "./database";
 import "./websocket";
 
@@ -58,7 +57,7 @@ serverHttp.on('listening', () => {
   });*/
 });
 
-listenerQueue();
+listenerQueue.subscribe();
 
 mongoose.connection.once('open', () => {
   const result = mongoose.connection.readyState;

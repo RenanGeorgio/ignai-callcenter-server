@@ -25,10 +25,12 @@ export class QueueAmqpService {
     }
   }
 
-  public async sendData(data: any) {
+  public async sendData(data: any): Promise<void> {
     try {
       // @ts-ignore
-      await this.channel.sendToQueue(this.queue, Buffer.from(JSON.stringify(data)));
+      await this.channel.sendToQueue(this.queue, Buffer.from(JSON.stringify(data)), {
+        persistent: true
+      });
           
       await this.channel.close();
       await this.connection.close();
