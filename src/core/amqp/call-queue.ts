@@ -5,13 +5,13 @@ function generateUuid() {
   return Math.random().toString() + Math.random().toString() + Math.random().toString();
 }
 
-export class QueueAmqpService {
-  static _instance: QueueAmqpService;
+export class CallAmqpService {
+  static _instance: CallAmqpService;
   channel: Channel;
   connection: any;
   queue: string;
 
-  constructor(queueName: string = "callcenter") {
+  constructor(queueName: string = "oncall") {
     this.queue = queueName;
 
     this.init();
@@ -31,13 +31,15 @@ export class QueueAmqpService {
   }
 
   public async sendData(data: any): Promise<void> {
-    const messageId = generateUuid();
+    const correlationId = generateUuid();
     try {
       // @ts-ignore
       await this.channel.sendToQueue(this.queue, Buffer.from(JSON.stringify(data)), {
         persistent: true,
         contentType: 'application/json',
-        messageId: messageId
+        replyTo: 'oncall',
+        correlationId: correlationId,
+        messageId: correlationId
       });
           
       await this.channel.close();
@@ -48,12 +50,12 @@ export class QueueAmqpService {
     }
   }
 
-  static getInstance(queueName: string): QueueAmqpService {
+  static getInstance(queueName: string): CallAmqpService {
     if (this._instance) {
       return this._instance;
     }
 
-    this._instance = new QueueAmqpService(queueName);
+    this._instance = new CallAmqpService(queueName);
     return this._instance;
   }
 }

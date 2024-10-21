@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { listenerQueue } from "../../core/http";
 import { sendEventToClients, NotifyAgentDTO, sendDisconnectEventToClients, DisconnectAgentDTO } from "../../lib/events/notify-agent";
 import { failedConnection, aboutToConnect, waitMusic, enqueueFailed, finishCall } from "../../lib/documents";
 import { generateNewQueue } from "../../helpers/queue";
@@ -9,6 +10,13 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
   console.log("to connect");
   const { queue } = request.query;
   try {
+    const getCall = async (data: any) => {
+      const result = await fetch('/on-call', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    };
+
     const { 
       CallStatus, 
       ForwardedFrom, 
@@ -34,6 +42,9 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
       QueueTime, 
       DequeingCallSid 
     }
+
+    listenerQueue.findMessage("");
+    getCall();
 
     // @ts-ignore
     console.log(value);

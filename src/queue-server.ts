@@ -7,6 +7,7 @@ import RedisStore from "connect-redis";
 import { redisClient } from "./core/redis";
 import { queueRoutes } from "./routes";
 import { QueueAmqpService } from "./core/amqp/connect-queue";
+import { CallAmqpService } from "./core/amqp/call-queue";
 
 const store = new RedisStore({ client: redisClient, prefix: "bot:" });
 
@@ -41,11 +42,13 @@ queueApp.use(cookieParser());
 queueApp.use(customSession);
 
 const amqpService = QueueAmqpService.getInstance("callcenter");
+const onCallService = CallAmqpService.getInstance("oncall");
 
 // routes
 queueApp.use(queueRoutes);
 
 export {
   queueApp,
-  amqpService
+  amqpService,
+  onCallService
 }

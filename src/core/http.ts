@@ -1,7 +1,7 @@
 import http from "http";
 import { Server } from "socket.io";
 import app from "../server";
-import { queueApp, amqpService } from "../queue-server";
+import { queueApp, amqpService, onCallService } from "../queue-server";
 import { ListenerQueue } from "./amqp/listener";
 
 const serverHttp = http.createServer(app);
@@ -23,4 +23,12 @@ const io_server = new Server(serverHttp, {
 
 const listenerQueue = ListenerQueue.getInstance("callcenter");
 
-export { serverHttp, io, io_server, queueHttp, amqpService, listenerQueue };
+export { 
+  serverHttp, 
+  io, 
+  io_server, 
+  queueHttp, 
+  amqpService, 
+  onCallService, 
+  listenerQueue
+ };
