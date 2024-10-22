@@ -3,20 +3,14 @@ import { listenerQueue } from "../../core/http";
 import { sendEventToClients, NotifyAgentDTO, sendDisconnectEventToClients, DisconnectAgentDTO } from "../../lib/events/notify-agent";
 import { failedConnection, aboutToConnect, waitMusic, enqueueFailed, finishCall } from "../../lib/documents";
 import { generateNewQueue } from "../../helpers/queue";
-import { CALL_STATUS, QUEUE_RESULT_STATUS } from "../../assets/constants";
+import { CALL_STATUS, ENQUEUE_STATUS, QUEUE_RESULT_STATUS } from "../../assets/constants";
+import { QueueAgentDTO } from "../../core/amqp/types";
 
-export const toConnect = (request: Request, response: Response, next: NextFunction) => {
+export const toConnect = async (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("to connect");
   const { queue } = request.query;
   try {
-    const getCall = async (data: any) => {
-      const result = await fetch('/on-call', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
-    };
-
     const { 
       CallStatus, 
       ForwardedFrom, 
@@ -43,9 +37,13 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
       DequeingCallSid 
     }
 
-    listenerQueue.findMessage("");
-    getCall();
-
+    const result = await listenerQueue.findMessage(CallSid);
+    if (result) {
+      const call = await fetch('/on-call', {
+        method: 'POST',
+        body: JSON.stringify(result)
+      });
+    }
     // @ts-ignore
     console.log(value);
 
@@ -60,10 +58,17 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log("to wait room");
   try {
-    const enquedeCall = async (data: any) => {
+    const enquedeCall = async (data: NotifyAgentDTO) => {
+      const newData: QueueAgentDTO = {
+        ...data,
+        status: ENQUEUE_STATUS.QUEUED,
+        deQueuedTime: undefined,
+        queuedTime: new Date().toString()
+      }
+
       const result = await fetch('/send-msg', {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(newData)
       });
     };
 

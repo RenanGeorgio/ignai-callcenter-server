@@ -32,14 +32,15 @@ export class CallAmqpService {
 
   public async sendData(data: any): Promise<void> {
     const correlationId = generateUuid();
+    const messageId = generateUuid();
     try {
       // @ts-ignore
       await this.channel.sendToQueue(this.queue, Buffer.from(JSON.stringify(data)), {
         persistent: true,
         contentType: 'application/json',
-        replyTo: 'oncall',
+        replyTo: 'callcenter',
         correlationId: correlationId,
-        messageId: correlationId
+        messageId: messageId
       });
           
       await this.channel.close();

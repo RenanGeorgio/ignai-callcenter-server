@@ -1,5 +1,6 @@
 import amqp, { Channel } from "amqplib";
 import config from "../../config/env";
+import { QueueAgentDTO } from "./types";
 
 function generateUuid() {
   return Math.random().toString() + Math.random().toString() + Math.random().toString();
@@ -30,13 +31,15 @@ export class QueueAmqpService {
     }
   }
 
-  public async sendData(data: any): Promise<void> {
+  public async sendData(data: QueueAgentDTO): Promise<void> {
+    const correlationId = generateUuid();
     const messageId = generateUuid();
     try {
       // @ts-ignore
       await this.channel.sendToQueue(this.queue, Buffer.from(JSON.stringify(data)), {
         persistent: true,
         contentType: 'application/json',
+        correlationId: correlationId,
         messageId: messageId
       });
           

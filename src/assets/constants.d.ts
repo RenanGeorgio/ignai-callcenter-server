@@ -20,3 +20,10 @@ export enum QUEUE_RESULT_STATUS {
   QUEUE_FULL = 'queue-full',
   SYSTEM_ERROR = 'system-error'
 }
+
+export enum ENQUEUE_STATUS {
+  QUEUED = 'queued',
+  ON_CALL = 'on-call',
+  TRANSFER = 'transfering',
+  FINISH = 'finish'
+}

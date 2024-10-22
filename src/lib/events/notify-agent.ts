@@ -9,8 +9,21 @@ type DisconnectDataType = {
   QueueTime: string
 };
 
+type EventdataType = {
+  CallSid: string
+  Caller: string | undefined
+  From: string | undefined
+  To: string | undefined
+  QueuePosition: number | string
+  QueueSid: string
+  QueueTime: string
+  AvgQueueTime?: string 
+  CurrentQueueSize: number | string 
+  MaxQueueSize: number | string
+}
+
 export interface NotifyAgentDTO {
-  eventData: any;
+  eventData: EventdataType;
   filterCompanyId: string;
   filterQueueId?: string;
 }

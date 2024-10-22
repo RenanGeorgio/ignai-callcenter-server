@@ -10,28 +10,28 @@ export class ListenerQueue {
   connection: any;
   queue: string;
   redisClient: ReturnType<typeof createClient> = redisClient;
+  redisPublisher: ReturnType<typeof createClient>;
 
   constructor(queueName: string = "callcenter") {
     this.queue = queueName;
+    this.redisPublisher = redisClient.duplicate();
   }
 
   public async subscribe(): Promise<void> {
     try {
+      await this.redisPublisher.connect();
+
       const connection = await amqp.connect(config.queue.amqp);
       const channel = await connection.createChannel();
       
-      // PESQUISAR O PQ DISSO
+      // @ts-ignore
       process.once("SIGINT", async () => {
         await channel.close();
         await connection.close();
       });
   
-      /*channel.assertExchange(exchange, 'fanout', {
-        durable: false
-      });*/
       await channel.assertQueue(this.queue, { durable: true });
-      //channel.prefetch(1); SUPORTA APENAS UMA POR VEZ
-      //channel.bindQueue(q.queue, exchange, '');
+      
       channel.consume(
         this.queue, 
         async (data: any) => {
@@ -39,7 +39,7 @@ export class ListenerQueue {
             // @ts-ignore
             console.log("Data received : ", `${Buffer.from(data.content)}` );
 
-            const result = await this.redisClient.rPush("queue_messages", data.content);
+            const result = await this.redisClient.rPush("queued_calls", data.content);
             if (result) {
               channel.ack(data);
             }
@@ -55,7 +55,7 @@ export class ListenerQueue {
 
   private async getMessages(): Promise<string[]> {
     try {
-      const messages = await this.redisClient.lRange("queue_messages", 0, -1);
+      const messages = await this.redisClient.lRange("queued_calls", 0, -1);
       return messages;
     } catch (error: any) {
       // @ts-ignore
@@ -64,12 +64,18 @@ export class ListenerQueue {
     }
   }
 
-  private async findMessage(searchValue: string): Promise<string | null> {
+  public async findMessage(searchValue: string): Promise<string | null> {
     try {
       const messages = await this.getMessages();
 
       const foundMessage = messages.find((msg) => msg.includes(searchValue));
-      return foundMessage || null;
+
+      if (foundMessage) {
+        this.completeTasksAndDeleteMessage(foundMessage);
+        return foundMessage;
+      } else {
+        return null;
+      }
     } catch (error: any) {
       // @ts-ignore
       console.error("Error searching messages: ", error);
@@ -77,71 +83,23 @@ export class ListenerQueue {
     }
   }
 
-  public async findAndRemoveMessage(searchValue: string): Promise<string | null> {
+  private async completeTasksAndDeleteMessage(message: string): Promise<void> {
     try {
-      const messages = await this.getMessages();
-
-      const foundMessage = messages.find((msg) => msg.includes(searchValue));
-
-      if (foundMessage) {
-        await this.redisClient.lRem("queue_messages", 1, foundMessage);
-        console.log(`Removed message: ${foundMessage}`);
-        return foundMessage;
-      } else {
-        console.log(`No message found containing "${searchValue}"`);
-        return null;
-      }
-    } catch (error: any) {
-      console.error("Error finding/removing message: ", error);
-      return null;
-    }
-  }
-
-  public async findAndModifyMessage(searchValue: string): Promise<string | null> {
-    try {
-      const foundMessage = this.findMessage(searchValue);
-
-      if (!foundMessage) {
-        return null;
-      }
-
-      await this.redisClient.watch("queue_messages");
-
-      // Modify the found message (simulated here)
-      const modifiedMessage = foundMessage + " - modified";
-
-      // Perform other Redis operations atomically
-      const transaction = this.redisClient.multi();
-
-      // Apply the modification (you may choose to replace the message or handle it differently)
-      transaction.lRem("queue_messages", 1, foundMessage); // Remove the old message
-      transaction.rPush("queue_messages", modifiedMessage); // Add the modified message
-
-      const result = await transaction.exec();
-
-      if (result === null) {
-        return null;
-      }
-
-      return modifiedMessage;
+      await this.redisClient.lRem("queued_calls", 1, message);
     } catch (error: any) {
       // @ts-ignore
-      console.error("Error during optimistic locking: ", error);
-      return null;
+      console.error("Error deleting message after tasks: ", error);
     }
   }
 
-  // Complete external tasks and delete the message
-  public async completeTasksAndDeleteMessage(message: string): Promise<void> {
+  public async setOnCallMessage(value: string): Promise<string | null> {
     try {
-      // Simulate external tasks being performed
-      console.log(`Performing external tasks for message: ${message}`);
-      
-      // Once tasks are done, remove the modified message from Redis
-      await this.redisClient.lRem("queue_messages", 1, message);
-      console.log(`Message "${message}" deleted from Redis after tasks completion.`);
-    } catch (error) {
-      console.error("Error deleting message after tasks: ", error);
+      const result = await this.redisPublisher.rPush("on_call", value);
+      return result;
+    } catch (error: any) {
+      // @ts-ignore
+      console.error(error);
+      return null;
     }
   }
 
