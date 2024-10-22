@@ -7,9 +7,11 @@ export class QueueData {
   static _instance: QueueData;
   name: string;
   redisPublisher: ReturnType<typeof createClient>;
+  size: number;
 
   constructor(name: string = "on_call") {
     this.name = name;
+    this.size = 0;
     this.redisPublisher = redisClient.duplicate();
 
     this.init();
@@ -19,11 +21,11 @@ export class QueueData {
     try {
       await this.redisPublisher.connect();
 
-      await this.redisPublisher.ft.create('idx:animals', { 
+      await this.redisPublisher.ft.create('idx:on_call', { 
         data
       }, {
         ON: 'HASH',
-        PREFIX: 'noderedis:animals'
+        PREFIX: 'data:on_call'
       });
     } catch (error: any) {
       if (error.message === 'Index already exists') {
@@ -59,19 +61,23 @@ export class QueueData {
 
   public async setData(data: any): Promise<void> {
     try {
-      //await this.redisPublisher.hSet('noderedis:animals:1', {name: 'Fluffy', species: 'cat', age: 3});
-      await this.redisPublisher.hSet('noderedis:animals:1', data);
+      this.size = this.size + 1;
+      const index = 'data:on_call:' + this.size.toString();
+      //await this.redisPublisher.hSet('data:on_call:1', {name: 'Fluffy', species: 'cat', age: 3});
+      await this.redisPublisher.hSet(index, data);
     } catch (error: any) {
       // @ts-ignore
       console.error(error);
     }
   }
 
-  public async searchData(key: string): Promise<void> {
+  public async searchData(value: string, key: string): Promise<void> {
     try {
+      const index = '@eventData.CallSid:{' + value + '}';
+
       const results = await this.redisPublisher.ft.search(
-        'idx:animals', 
-        '@species:{dog}',
+        'idx:on_call', 
+        index,
         {
           SORTBY: {
             BY: key,
