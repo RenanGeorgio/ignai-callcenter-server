@@ -66,19 +66,20 @@ export class QueueData {
     }
   }
 
-  public async searchData(): Promise<void> {
+  public async searchData(key: string): Promise<void> {
     try {
-      await this.redisPublisher.hSet('noderedis:animals:1', {name: 'Fluffy', species: 'cat', age: 3});
       const results = await this.redisPublisher.ft.search(
         'idx:animals', 
         '@species:{dog}',
         {
           SORTBY: {
-            BY: 'age',
-            DIRECTION: 'DESC' // or 'ASC (default if DIRECTION is not present)
+            BY: key,
+            DIRECTION: 'DESC'
           }
         }
       );
+
+      return results;
     } catch (error: any) {
       // @ts-ignore
       console.error(error);
