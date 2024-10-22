@@ -39,7 +39,7 @@ export class ListenerQueue {
             // @ts-ignore
             console.log("Data received : ", `${Buffer.from(data.content)}` );
 
-            const result = await this.redisClient.rPush("queued_calls", data.content);
+            const result = await this.redisClient.rPush("queued_calls", data.content); // TO-DO: HSET
             if (result) {
               channel.ack(data);
             }
