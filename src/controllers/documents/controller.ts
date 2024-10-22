@@ -6,7 +6,7 @@ import { generateNewQueue } from "../../helpers/queue";
 import { CALL_STATUS, ENQUEUE_STATUS, QUEUE_RESULT_STATUS } from "../../assets/constants";
 import { QueueAgentDTO } from "../../core/amqp/types";
 
-export const toConnect = async (request: Request, response: Response, next: NextFunction) => {
+export const toConnect = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("to connect");
   const { queue } = request.query;
@@ -37,13 +37,8 @@ export const toConnect = async (request: Request, response: Response, next: Next
       DequeingCallSid 
     }
 
-    const result = await listenerQueue.findMessage(CallSid);
-    if (result) {
-      const call = await fetch('/on-call', {
-        method: 'POST',
-        body: JSON.stringify(result)
-      });
-    }
+    listenerQueue.findMessage(CallSid);
+    
     // @ts-ignore
     console.log(value);
 

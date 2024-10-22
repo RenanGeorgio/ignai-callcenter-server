@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { amqpService, onCallService } from "../../core/http";
+import { amqpService, listenerQueue } from "../../core/http";
 
 export const handleMsg = (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -26,7 +26,7 @@ export const handleOnCall = (request: Request, response: Response, next: NextFun
       author: "Leigh Burdugo"
     }
 
-    onCallService.sendData(data);
+    listenerQueue.findMessage(data.CallSid);
 
     // @ts-ignore
     console.log("A message is sent to queue");
