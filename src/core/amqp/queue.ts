@@ -57,9 +57,10 @@ export class QueueData {
     }
   }
 
-  public async setData(): Promise<void> {
+  public async setData(data: any): Promise<void> {
     try {
-      await this.redisPublisher.hSet('noderedis:animals:1', {name: 'Fluffy', species: 'cat', age: 3});
+      //await this.redisPublisher.hSet('noderedis:animals:1', {name: 'Fluffy', species: 'cat', age: 3});
+      await this.redisPublisher.hSet('noderedis:animals:1', data);
     } catch (error: any) {
       // @ts-ignore
       console.error(error);

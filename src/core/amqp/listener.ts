@@ -2,6 +2,7 @@ import amqp, { Channel } from "amqplib";
 import { createClient } from "redis";
 import { redisClient } from "../redis";
 import config from "../../config/env";
+import { QueueData } from "./queue";
 
 
 export class ListenerQueue {
@@ -10,17 +11,15 @@ export class ListenerQueue {
   connection: any;
   queue: string;
   redisClient: ReturnType<typeof createClient> = redisClient;
-  redisPublisher: ReturnType<typeof createClient>;
+  redisPublisher: QueueData;
 
   constructor(queueName: string = "callcenter") {
     this.queue = queueName;
-    this.redisPublisher = redisClient.duplicate();
+    this.redisPublisher = QueueData.getInstance("on_call");
   }
 
   public async subscribe(): Promise<void> {
     try {
-      await this.redisPublisher.connect();
-
       const connection = await amqp.connect(config.queue.amqp);
       const channel = await connection.createChannel();
       
@@ -72,6 +71,8 @@ export class ListenerQueue {
 
       if (foundMessage) {
         this.completeTasksAndDeleteMessage(foundMessage);
+        this.setOnCallMessage(foundMessage);
+
         return foundMessage;
       } else {
         return null;
@@ -92,14 +93,12 @@ export class ListenerQueue {
     }
   }
 
-  public async setOnCallMessage(value: string): Promise<string | null> {
+  private async setOnCallMessage(value: string): Promise<void> {
     try {
-      const result = await this.redisPublisher.rPush("on_call", value);
-      return result;
+      await this.redisPublisher.setData(value);
     } catch (error: any) {
       // @ts-ignore
       console.error(error);
-      return null;
     }
   }
 
