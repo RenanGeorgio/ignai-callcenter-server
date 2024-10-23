@@ -3,6 +3,7 @@ import { createClient } from "redis";
 import { redisClient } from "../redis";
 import config from "../../config/env";
 import { QueueData } from "./queue";
+import { QueueAgentDTO } from "./types";
 
 
 export class ListenerQueue {
@@ -35,10 +36,14 @@ export class ListenerQueue {
         this.queue, 
         async (data: any) => {
           if (data) {
-            // @ts-ignore
-            console.log("Data received : ", `${Buffer.from(data.content)}` );
+            const content = Buffer.from(data.content);
+            console.log("Data received : ", `${content}` );
 
-            const result = await this.redisClient.rPush("queued_calls", data.content); // TO-DO: HSET
+            const value: QueueAgentDTO = JSON.parse(content);
+            const company = value.filterCompanyId;
+            const key = value.eventData.CallSid;
+
+            const result = await this.redisClient.hSet(company, key, content);
             if (result) {
               channel.ack(data);
             }
@@ -63,14 +68,12 @@ export class ListenerQueue {
     }
   }
 
-  public async findMessage(searchValue: string): Promise<string | null> {
+  public async findCall(company: string , search: string): Promise<string | null> {
     try {
-      const messages = await this.getMessages();
-
-      const foundMessage = messages.find((msg) => msg.includes(searchValue));
+      const foundMessage = await this.redisClient.hGet(company, search);
 
       if (foundMessage) {
-        this.completeTasksAndDeleteMessage(foundMessage);
+        this.completeTasksAndDeleteMessage(company, search);
         this.setOnCallMessage(foundMessage);
 
         return foundMessage;
@@ -84,9 +87,25 @@ export class ListenerQueue {
     }
   }
 
-  private async completeTasksAndDeleteMessage(message: string): Promise<void> {
+  public async listCalls(company: string): Promise<string | null> {
     try {
-      await this.redisClient.lRem("queued_calls", 1, message);
+      const res = await this.redisClient.hGetAll(company);
+
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error: any) {
+      // @ts-ignore
+      console.error("Error searching messages: ", error);
+      return null;
+    }
+  }
+
+  private async completeTasksAndDeleteMessage(company: string , search: string): Promise<void> {
+    try {
+      await this.redisClient.hDel(company, search);
     } catch (error: any) {
       // @ts-ignore
       console.error("Error deleting message after tasks: ", error);
@@ -95,7 +114,8 @@ export class ListenerQueue {
 
   private async setOnCallMessage(value: string): Promise<void> {
     try {
-      await this.redisPublisher.setData(value);
+      const msg: QueueAgentDTO = JSON.parse(value);
+      await this.redisPublisher.setData(msg);
     } catch (error: any) {
       // @ts-ignore
       console.error(error);

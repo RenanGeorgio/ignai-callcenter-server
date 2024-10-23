@@ -9,7 +9,12 @@ import { QueueAgentDTO } from "../../core/amqp/types";
 export const toConnect = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("to connect");
-  const { queue } = request.query;
+  const { companyId } = request.query;
+
+  if (!companyId) {
+    return response.status(400).send({ message: "Missing required fields" });
+  }
+
   try {
     const { 
       CallStatus, 
@@ -37,7 +42,7 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
       DequeingCallSid 
     }
 
-    listenerQueue.findMessage(CallSid);
+    listenerQueue.findCall(companyId, CallSid); 
     
     // @ts-ignore
     console.log(value);

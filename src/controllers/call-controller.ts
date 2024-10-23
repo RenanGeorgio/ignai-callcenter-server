@@ -235,7 +235,7 @@ export const handleDequeueCall = (request: Request, response: Response, next: Ne
     console.log(From);
 
     dial.queue({
-      url: `/about-to-connect?queue=${queueId}`,
+      url: `/about-to-connect?queue=${queueId}&companyId=${company}`,
       method: 'POST'
     }, queueId);
 

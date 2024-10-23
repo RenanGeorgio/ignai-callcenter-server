@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
+import { listenerQueue } from "../core/http";
 import config from "../config/env";
 import { Obj } from "../types";
 
@@ -47,47 +48,22 @@ export const listMembers = async (request: Request, response: Response, next: Ne
 };
 
 export const listClientMembers = async (request: Request, response: Response, next: NextFunction) => {
-  const calls: Obj[] = [];
-
-  const accountSid = config.twilio.accountSid;
-  const authToken = config.twilio.authToken;
-
   try {
-    const { company } = request.query;
+    const { company } = request.body;
 
-    const client = twilio(accountSid, authToken);
+    if (!company) {
+      return response.status(400).send({ message: "Missing required filds" });
+    }
+    
+    const value = listenerQueue.listCalls(company);
 
-    // TO-DO: pegar queue ativas para esta empresa
-    const members = await client.queues(queue.sid).members.list({ limit: 1000 });
+    if (!value) {
+      const calls = JSON.parse(value);
 
-    const queuedCalls = members.queue_members;
-
-    queuedCalls.forEach(async (queuedCall: Obj) => {
-      const callSid = queuedCall['call_sid'];
-
-      const call = await client.calls(callSid).fetch();
-      
-      if (call) {
-        const info = {
-          company: company,
-          queue: queuedCall.friendly_name,
-          data: {
-            CallSid: callSid,
-            Caller: call['caller_name'], 
-            From: call['from'], 
-            To: call['to'],
-            QueuePosition: queuedCall['position'], 
-            QueueSid: queuedCall['queue_sid'], 
-            QueueTime: call['queue_time'], 
-            CurrentQueueSize: queuedCalls.length
-          }
-        }
-
-        calls.push(info);
-      }
-    });
-
-    return response.status(201).send({ members: calls });
+      return response.status(201).send({ members: calls });
+    } else {
+      return response.status(201).send({ message: [] });
+    }
   }
   catch (error) {
     next(error);

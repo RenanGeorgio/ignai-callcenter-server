@@ -1,6 +1,7 @@
 import { createClient } from "redis";
 import { redisClient } from "../redis";
 import { data } from "./data";
+import { QueueAgentDTO } from "./types";
 
 
 export class QueueData {
@@ -59,7 +60,7 @@ export class QueueData {
     }
   }
 
-  public async setData(data: any): Promise<void> {
+  public async setData(data: QueueAgentDTO): Promise<void> {
     try {
       this.size = this.size + 1;
       const index = 'data:on_call:' + this.size.toString();
