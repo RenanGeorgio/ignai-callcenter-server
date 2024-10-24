@@ -72,11 +72,23 @@ export class QueueData {
     }
   }
 
-  public async searchData(value: string, key: string): Promise<void> {
+  public async removeData(data: QueueAgentDTO): Promise<void> {
+    try {
+      this.size = this.size + 1;
+      const index = 'data:on_call:' + this.size.toString();
+      //await this.redisPublisher.hSet('data:on_call:1', {name: 'Fluffy', species: 'cat', age: 3});
+      await this.redisPublisher.hSet(index, data);
+    } catch (error: any) {
+      // @ts-ignore
+      console.error(error);
+    }
+  }
+
+  public async searchData(value: string, key: string): Promise<QueueAgentDTO | null> {
     try {
       const index = '@eventData.CallSid:{' + value + '}';
 
-      const results = await this.redisPublisher.ft.search(
+      const results: QueueAgentDTO = await this.redisPublisher.ft.search(
         'idx:on_call', 
         index,
         {
@@ -91,6 +103,7 @@ export class QueueData {
     } catch (error: any) {
       // @ts-ignore
       console.error(error);
+      return null;
     }
   }
 

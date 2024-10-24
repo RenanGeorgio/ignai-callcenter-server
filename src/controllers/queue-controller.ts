@@ -49,7 +49,7 @@ export const listMembers = async (request: Request, response: Response, next: Ne
 
 export const listClientMembers = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    const { company } = request.body;
+    const { company } = request.query;
 
     if (!company) {
       return response.status(400).send({ message: "Missing required filds" });
@@ -64,6 +64,40 @@ export const listClientMembers = async (request: Request, response: Response, ne
     } else {
       return response.status(201).send({ message: [] });
     }
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleRequeueCall = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { CallSid, company } = request.body;
+
+    if (!company) {
+      return response.status(400).send({ message: "Missing required filds" });
+    }
+    
+    await listenerQueue.setRequeueCall(CallSid, company);
+
+    return response.status(201).send({ message: "Call requeued" });
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleFinishCall = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { CallSid, company } = request.body;
+
+    if (!company) {
+      return response.status(400).send({ message: "Missing required filds" });
+    }
+    
+    await listenerQueue.setFinishCall(CallSid, company);
+
+    return response.status(201).send({ message: "Finish Call" });
   }
   catch (error) {
     next(error);

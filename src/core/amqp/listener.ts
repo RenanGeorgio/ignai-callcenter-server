@@ -122,6 +122,43 @@ export class ListenerQueue {
     }
   }
 
+  public async setRequeueCall(callid: string, company: string): Promise<void> {
+    try {
+      const result: QueueAgentDTO | null = await this.redisPublisher.searchData(callid, company);
+
+      if (result) {
+        await this.redisPublisher.removeData(result);
+
+        const company = result.filterCompanyId;
+        const key = result.eventData.CallSid;
+
+        await this.redisClient.hSet(company, key, result);
+      }
+      
+      return;
+    } catch (error: any) {
+      // @ts-ignore
+      console.error(error);
+      return;
+    }
+  }
+
+  public async setFinishCall(callid: string, company: string): Promise<void> {
+    try {
+      const result: QueueAgentDTO | null = await this.redisPublisher.searchData(callid, company);
+
+      if (result) {
+        await this.redisPublisher.removeData(result);
+      }
+      
+      return;
+    } catch (error: any) {
+      // @ts-ignore
+      console.error(error);
+      return;
+    }
+  }
+
   static getInstance(queueName: string): ListenerQueue {
     if (this._instance) {
       return this._instance;
