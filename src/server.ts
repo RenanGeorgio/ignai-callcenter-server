@@ -18,12 +18,13 @@ app.use(cors());
 
 app.options('*', cors());
 
-app.use(bodyParser.urlencoded( { extended : false }));
 app.use(bodyParser.json({
   verify: (req: any, res: Response, buf: any) => {
     req.rawBody = buf;
   }
 }));
+
+app.use(bodyParser.urlencoded( { extended : false }));
 
 app.use(express.json());
 
