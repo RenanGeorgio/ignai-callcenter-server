@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
 import { welcome } from "../lib/ivr";
+import Welcome from "../models/welcome";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
 
 
-export const handleCall = (request: Request, response: Response, next: NextFunction) => {
+export const handleCall = async (request: Request, response: Response, next: NextFunction) => {
   const hasIvr = true; // TO-DO: checkar se o usuario possui IVR (URA)
   const body = request.body;
 
@@ -13,7 +14,7 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log(body);
   try {
-    const { Called, Caller, From, To, Direction } = body;
+    const { Called, Caller, From, To, Direction, CallSid } = body;
     
     const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
@@ -33,8 +34,16 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
       if (hasIvr) {
         // @ts-ignore
         console.log('welcome');
-        const companyId = "1";
-        response.send(welcome(companyId));
+
+        const welcomeData = await Welcome.findOne({
+          phoneInfo: { 
+            $elemMatch: { phoneNumber: To } 
+          }
+        });
+
+        const { company, menu, values } = welcomeData;
+        
+        response.send(welcome(company, menu, values));
       } else {
         if (isAValidPhoneNumber(new_oringin)) {
           // @ts-ignore
@@ -93,16 +102,6 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: callerId });
 
-    //dial.number(To);
-
-    /*
-    if (To) {
-      const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-      dial[attr]({}, To);
-    } else {
-      dial.client({}, "support_agent"); // TO-DO: ref -> browser call
-    }
-      */
     const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
     dial[attr]({}, To);
 

@@ -1,34 +1,38 @@
 import twilio from "twilio";
+import { giveInstructions, listRouters, serviceQeue, listAgents, listTasks } from "../actions";
+import { MenuType, Obj, WelcomeValues } from "../types";
 
-export function welcome(companyId: string) {
+const actions = { giveInstructions, listRouters, serviceQeue, listAgents, listTasks };
+
+export function welcome(company: string, menu: MenuType, values: WelcomeValues) {
   const client = new twilio.twiml.VoiceResponse();
 
+  const { language, numDigits, timeout, actionOnEmptyResult } = menu;
+
   const action = client.gather({
-    action: '/menu',
-    language: 'pt-BR',
-    numDigits: 1, // TO-DO: colocar dimanico qd identificar cliente
-    timeout: 5, // default = 5
+    action: `/menu?user=${company}`,
+    language: language,
+    numDigits: numDigits,
+    timeout: timeout ? timeout : 5,
     method: 'POST',
-    actionOnEmptyResult: false,
+    actionOnEmptyResult: actionOnEmptyResult ? actionOnEmptyResult : false,
   });
 
-  // TO-DO: Obter as falas atravez da identificação do cliente e puxando isso de um banco de dados
+  const { voice, loop, messages } = values;
+  
   action.say(
     { 
-      language: 'pt-BR',
-      voice: 'Polly.Camila', // Polly.Ricardo
-      loop: 3
+      language: language,
+      voice: voice ? voice : 'Polly.Camila',
+      loop: loop ? loop : 3
     },
-    'Muito obrigado por ligar. ' +
-    'Por favor pressione 1 para receber direções. ' +
-    'Pressione 2 para obter uma lista de telefones de contato para ligar.' +
-    'Pressione 3 para falar com um atendente. '
+    messages.join(" ")
   );
 
   client.say(
     { 
-      language: 'pt-BR',
-      voice: 'Polly.Ricardo',
+      language: language,
+      voice: voice ? voice : 'Polly.Ricardo',
       loop: 1
     },
     'Não detectamos nenhum digito!'
@@ -37,19 +41,20 @@ export function welcome(companyId: string) {
   return client.toString();
 };
 
-export function menu(digit: string) {
-  // TO-DO estudar abordagem para puxar isso do cliente
-  const optionActions = {
-    '1': giveExtractionPointInstructions,
-    '2': listPlanets,
-    '3': serviceAgent,
-  };
+export function menu(digit: string, menuList: string[], user: string) {
+  const optionActions: Obj = {};
+
+  let index = 1;
+  for (const menuItem in menuList) {
+    optionActions[index.toString()] = actions[menuItem];
+    index++;
+  }
 
   // @ts-ignore
-  return (optionActions[digit]) ? optionActions[digit]() : redirectWelcome();
+  return (optionActions[digit]) ? optionActions[digit](user) : redirectWelcome();
 };
 
-export function planets(digit: string) {
+export function routerFlow(digit: string) {
   const optionActions = {
     '2': '+19295566487',
     '3': '+17262043675',
@@ -68,71 +73,47 @@ export function planets(digit: string) {
   return redirectWelcome();
 };
 
-/**
- * Retorna Twiml
- * @return {String}
- */
-function giveExtractionPointInstructions(): string {
-  const client = new twilio.twiml.VoiceResponse();
+export function taskFlow(digit: string) {
+  const optionActions = {
+    '2': '+19295566487',
+    '3': '+17262043675',
+    '4': '+16513582243',
+  };
 
-  client.say(
-    { 
-      language: 'pt-BR',
-      voice: 'Polly.Ricardo',
-      loop: 1
-    },
-    'Para chegar ao seu ponto de extração, suba na bicicleta e desça ' +
-    'a rua. Então saiu por um beco. Evite os carros da polícia. Vire à esquerda ' +
-    'em um conjunto habitacional inacabado. Voe sobre o bloqueio. Ir ' +
-    'passou a lua. Logo depois você verá sua nave-mãe.'
-  );
+  // @ts-ignore
+  if (optionActions[digit]) {
+    const client = new twilio.twiml.VoiceResponse();
+    // @ts-ignore
+    client.dial(optionActions[digit]);
 
-  client.say(
-    { 
-      language: 'pt-BR',
-      voice: 'Polly.Ricardo',
-      loop: 1
-    },
-    'Obrigado por ligar para o ET Phone Home Service - o ' +
-    'A primeira escolha de um alienígena aventureiro em viagens intergalácticas'
-  );
+    return client.toString();
+  }
 
-  client.hangup();
+  return redirectWelcome();
+};
 
-  return client.toString();
-}
+export function agents(digit: string, agentList: string[]) {
+  const optionActions: Obj = {};
 
-/**
- * Retorna uma TwiML para interagir com o cliente
- * @return {String}
- */
-function listPlanets(): string {
-  const client = new twilio.twiml.VoiceResponse();
+  let index = 2;
+  for (const agent in agentList) {
+    optionActions[index.toString()] = agent;
+    index++;
+  }
 
-  const action = client.gather({
-    action: '/planets',
-    language: 'pt-BR',
-    numDigits: 1,
-    timeout: 3,
-    method: 'POST',
-    actionOnEmptyResult: false,
-  });
+  // @ts-ignore
+  if (optionActions[digit]) {
+    const client = new twilio.twiml.VoiceResponse();
+    // @ts-ignore
+    client.dial(optionActions[digit]);
 
-  action.say(
-    { 
-      language: 'pt-BR',
-      voice: 'Polly.Camila',
-      loop: 3
-    },
-    'Para chamar o planeta Broh doe As O G, pressione 2. Para chamar o planeta DuhGo ' +
-    'bah, pressione 3. Para chamar um asteróide oober para sua localização, pressione 4. Para ' +
-    'volte ao menu principal, pressione a tecla estrela '
-  );
+    return client.toString();
+  }
 
-  return client.toString();
-}
-
-/**
+  return redirectWelcome();
+};
+  
+  /**
  * Retorna um xml com o redirecionamento
  * @return {String}
  */
@@ -151,8 +132,8 @@ function serviceAgent(): string {
  
   client.redirect(`/enqueue-incoming?queue=${queue}`);
 
-  return client.toString();
-}
+  return redirectWelcome();
+};
 
 /**
  * Retorna um xml com o redirecionamento
