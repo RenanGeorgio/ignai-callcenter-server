@@ -3,24 +3,26 @@ import { addUserQueue, listUsersQueue, removeUserQueue } from "../helpers/queue"
 
 // FUNÇÕES DE TESTE PARA FILA EM ESPERA NO REDIS - Apagar quando não precisar
 export const adicionar = async (req: Request, res: Response, next: NextFunction) => {
-    try{
-        const company = 'unimarka'
+    try {
+        const company = 'unimarka'; 
+        const queue = 'default'; 
 
-        const user = await addUserQueue(company);
+        const user = await addUserQueue(company, queue);
 
         return res.status(200).send({ user });
     }
-    catch(error){
+    catch (error) {
         next(error);
     }
 }
 
 export const remover = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const removed = await removeUserQueue('unimarka:waitroom:1', 'user:6')
-        if (removed){
+        const removed = await removeUserQueue('unimarka:waitroom:1', 'user:6');
+
+        if (removed) {
             return res.status(200).send({ message: "removido" });
-        }else{
+        } else {
             return res.status(200).send({ message: "não removido" });
         }
     }
@@ -31,9 +33,10 @@ export const remover = async (req: Request, res: Response, next: NextFunction) =
 
 export const pegar = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const company = 'unimarka'
+        const company = 'unimarka';
+        const queue = 'default'; 
 
-        const queues = await listUsersQueue(company);
+        const queues = await listUsersQueue(company, queue);
 
         return res.status(200).send({ queues });
     }
