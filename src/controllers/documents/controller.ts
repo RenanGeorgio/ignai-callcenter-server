@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { ENQUEUE_STATUS, CALL_STATUS, QUEUE_RESULT_STATUS } from "../../types/constants";
 import { listenerQueue } from "../../core/http";
 import { sendEventToClients, NotifyAgentDTO, sendDisconnectEventToClients, DisconnectAgentDTO } from "../../lib/events/notify-agent";
 import { failedConnection, aboutToConnect, waitMusic, enqueueFailed, finishCall } from "../../lib/documents";
-import { generateNewQueue } from "../../helpers/queue";
+import config from "../../config/env";
+import { ENQUEUE_STATUS, CALL_STATUS, QUEUE_RESULT_STATUS } from "../../types/constants";
 import { QueueAgentDTO } from "../../core/amqp/types";
+import { removeUserQueue } from "../../helpers/queue";
 
 export const toConnect = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
@@ -16,6 +17,15 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
   }
 
   try {
+    const connectCurrentCall = async (company: string, id: string) => {
+      const found: QueueAgentDTO | null = await listenerQueue.findCall(company, id); 
+      if (found) {
+        const removed = await removeUserQueue(found.filterQueueId as string, found?.client);
+
+        return removed;
+      }
+    };
+
     const { 
       CallStatus, 
       ForwardedFrom, 
@@ -42,7 +52,7 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
       DequeingCallSid 
     }
 
-    listenerQueue.findCall(companyId, CallSid); 
+    connectCurrentCall(companyId, CallSid);
     
     // @ts-ignore
     console.log(value);
@@ -58,21 +68,24 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log("to wait room");
   try {
-    const enquedeCall = async (data: NotifyAgentDTO) => {
+    const enquedeCall = async (data: NotifyAgentDTO, client: string) => {
       const newData: QueueAgentDTO = {
         ...data,
+        client,
         status: ENQUEUE_STATUS.QUEUED,
         deQueuedTime: undefined,
         queuedTime: new Date().toString()
       }
 
-      const result = await fetch('/send-msg', {
+      const result = await fetch(`${config.amqp.host}/send-msg`, {
         method: 'POST',
         body: JSON.stringify(newData)
       });
+
+      return result;
     };
 
-    const { queue, company } = request.query;
+    const { queue, company, client } = request.query;
     // @ts-ignore
     console.log(request.query);
 
@@ -113,15 +126,10 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
       filterQueueId: queue ? queue : undefined
     }
 
-    if ((CurrentQueueSize == 100) || (CurrentQueueSize === MaxQueueSize)) {
-      generateNewQueue(queue, company);
-    }
-
     // @ts-ignore
     console.log(notifydata);
 
-    // TO-DO: colocar este processo na fila
-    enquedeCall(notifydata);
+    enquedeCall(notifydata, client);
 
     sendEventToClients(notifydata);
 
@@ -136,7 +144,7 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
   // @ts-ignore
   console.log("toActionTake");
 
-  const { company } = request.query;
+  const { company, queue, client } = request.query;
   try {
     const { 
       CallSid,
@@ -173,9 +181,8 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
     } else {
       // @ts-ignore
       console.log(value);
+      return response.send(finishCall(QueueSid));
     }
-
-    return response.send(finishCall(QueueSid));
   }
   catch (error) {
     next(error);

@@ -9,6 +9,7 @@ const config = {
   },
   queue: {
     port: process.env.QUEUE_PORT ? parseInt(process.env.QUEUE_PORT.replace(/[\\"]/g, '')) : 6061,
+    maxSize: 10,
   },
   amqp: {
     host: process.env.AMQP_HOST ? process.env.AMQP_HOST.replace(/[\\"]/g, '') : 'localhost',

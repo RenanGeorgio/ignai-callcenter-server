@@ -1,11 +1,29 @@
 import twilio from "twilio";
-import { removeQueue } from "../../helpers/queue";
 import config from "../../config/env";
 
 /**
  * Retorna Twiml
  * @return {String}
  */
+export default function finishCall(id?: string): string {
+  try {
+    const client = new twilio.twiml.VoiceResponse();
+
+    client.say(
+      { 
+        language: 'pt-BR',
+        voice: 'Polly.Ricardo',
+        loop: 1
+      },
+      'Obrigado por ligar.'
+    );
+
+    return client.toString();
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+/*
 export default function finishCall(id: string): string {
   const accountSid = config.twilio.accountSid;
   const authToken = config.twilio.authToken;
@@ -48,4 +66,4 @@ export default function finishCall(id: string): string {
   } catch (err: any) {
     throw new Error(err);
   }
-}
+}*/

@@ -1,4 +1,5 @@
 import { redisClient } from "../core/redis";
+import config from "../config/env";
 
 export type ClientInQ = {
     queue: string
@@ -15,7 +16,7 @@ export async function removeUserQueue(queue: string, user: string): Promise<bool
     }
 }
 
-export async function addUserQueue(company: string, queueName: string): Promise<ClientInQ> {
+export async function addUserQueue(company: string, queueName: string): Promise<any> {
     const queues = await redisClient.keys(company + ':' + queueName + ':*');
 
     if (queues) {
@@ -23,7 +24,7 @@ export async function addUserQueue(company: string, queueName: string): Promise<
             for (const queue of queues) {
                 const size = await redisClient.sCard(queue);
 
-                if (size < 10) {
+                if (size < config.queue.maxSize) {
                     const lastUser = (await redisClient.sMembers(queue)).pop();
 
                     if (lastUser) {

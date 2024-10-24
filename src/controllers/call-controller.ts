@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
 import { welcome } from "../lib/ivr";
+import { addUserQueue, ClientInQ } from "../helpers/queue";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
 
@@ -168,31 +169,30 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
   }
 };
 
-export const handleIncomingQueuedCall = (request: Request, response: Response, next: NextFunction) => {
+export const handleIncomingQueuedCall = async (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("handleIncomingQueuedCall");
+  const { queue, company } = request.query;
+
+  // @ts-ignore
+  console.log(queue);
+
   try {
-    const { queue } = request.query;
-
-    // @ts-ignore
-    console.log(queue);
-
-    const { Caller, From, To } = request.body;
-    const caller = From ? From : Caller;
-
     // @ts-ignore
     console.log(request.body);
 
     const client = new twilio.twiml.VoiceResponse();
-    const company = "company"
+
+    const user: ClientInQ = await addUserQueue(company, queue);
+
     client.enqueue(
       {
-        action: `/dequeue-action?company=${company}`,
+        action: `/dequeue-action?company=${company}&queue=${user.queue}&client=${user.user}`,
         method: 'POST',
-        waitUrl: `/wait-room?queue=${queue}&company=${company}`,
+        waitUrl: `/wait-room?queue=${user.queue}&company=${company}&client=${user.user}`,
         waitUrlMethod: 'POST',
       }, 
-      queue // TO-DO: Pegar o nome correto
+      user.queue
     );
 
     response.set('Content-Type', 'text/xml');
@@ -203,7 +203,7 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
   }
 };
 
-export const handleDequeueCall = (request: Request, response: Response, next: NextFunction) => {
+export const handleDequeueCall = async (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("handleDequeueCall");
   const { queueId } = request.query;
@@ -234,10 +234,12 @@ export const handleDequeueCall = (request: Request, response: Response, next: Ne
     // @ts-ignore
     console.log(From);
 
+    const user: ClientInQ = await addUserQueue(company, queueId);
+
     dial.queue({
-      url: `/about-to-connect?queue=${queueId}&companyId=${company}`,
+      url: `/about-to-connect?queue=${user.queue}&companyId=${company}`,
       method: 'POST'
-    }, queueId);
+    }, user.queue);
 
     // @ts-ignore
     console.log("handleDequeueCall 2");

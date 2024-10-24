@@ -139,6 +139,7 @@ function listPlanets(): string {
 function serviceAgent(): string {
   const client = new twilio.twiml.VoiceResponse();
   const queue = "default";
+  const company = "company";
 
   client.say(
     { 
@@ -149,7 +150,7 @@ function serviceAgent(): string {
     'Encaminhando para atendimento'
   );
  
-  client.redirect(`/enqueue-incoming?queue=${queue}`);
+  client.redirect(`/enqueue-incoming?queue=${queue}&company=${company}`);
 
   return client.toString();
 }

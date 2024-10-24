@@ -11,7 +11,7 @@ export class ListenerQueue {
   channel: Channel | undefined;
   connection: Connection | undefined;
   queue: string;
-  redisClient: ReturnType<typeof createClient> = redisClient;
+  redisClientStore: ReturnType<typeof createClient> = redisClient.duplicate();
   redisPublisher: QueueData;
 
   constructor(queueName: string = "callcenter") {
@@ -43,7 +43,7 @@ export class ListenerQueue {
             const company = value.filterCompanyId;
             const key = value.eventData.CallSid;
 
-            const result = await this.redisClient.hSet(company, key, content);
+            const result = await this.redisClientStore.hSet(company, key, content);
             if (result) {
               channel.ack(data);
             }
@@ -59,7 +59,7 @@ export class ListenerQueue {
 
   private async getMessages(): Promise<string[]> {
     try {
-      const messages = await this.redisClient.lRange("queued_calls", 0, -1);
+      const messages = await this.redisClientStore.lRange("queued_calls", 0, -1);
       return messages;
     } catch (error: any) {
       // @ts-ignore
@@ -68,15 +68,17 @@ export class ListenerQueue {
     }
   }
 
-  public async findCall(company: string , search: string): Promise<string | null> {
+  public async findCall(company: string , search: string): Promise<QueueAgentDTO | null> {
     try {
-      const foundMessage = await this.redisClient.hGet(company, search);
+      const foundMessage = await this.redisClientStore.hGet(company, search);
 
       if (foundMessage) {
         this.completeTasksAndDeleteMessage(company, search);
         this.setOnCallMessage(foundMessage);
 
-        return foundMessage;
+        const value: QueueAgentDTO = JSON.parse(foundMessage);
+
+        return value;
       } else {
         return null;
       }
@@ -89,7 +91,7 @@ export class ListenerQueue {
 
   public async listCalls(company: string): Promise<string | null> {
     try {
-      const res = await this.redisClient.hGetAll(company);
+      const res = await this.redisClientStore.hGetAll(company);
 
       if (res) {
         return res;
@@ -105,7 +107,7 @@ export class ListenerQueue {
 
   private async completeTasksAndDeleteMessage(company: string , search: string): Promise<void> {
     try {
-      await this.redisClient.hDel(company, search);
+      await this.redisClientStore.hDel(company, search);
     } catch (error: any) {
       // @ts-ignore
       console.error("Error deleting message after tasks: ", error);
@@ -132,7 +134,7 @@ export class ListenerQueue {
         const company = result.filterCompanyId;
         const key = result.eventData.CallSid;
 
-        await this.redisClient.hSet(company, key, result);
+        await this.redisClientStore.hSet(company, key, result);
       }
       
       return;
