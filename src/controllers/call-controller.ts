@@ -187,7 +187,7 @@ export const handleIncomingQueuedCall = async (request: Request, response: Respo
 
     client.enqueue(
       {
-        action: `/dequeue-action?company=${company}&queue=${user.queue}&client=${user.user}`,
+        action: `/dequeue-action?company=${company}`,
         method: 'POST',
         waitUrl: `/wait-room?queue=${user.queue}&company=${company}&client=${user.user}`,
         waitUrlMethod: 'POST',

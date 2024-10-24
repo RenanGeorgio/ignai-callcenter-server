@@ -144,7 +144,7 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
   // @ts-ignore
   console.log("toActionTake");
 
-  const { company, queue, client } = request.query;
+  const { company } = request.query;
   try {
     const { 
       CallSid,
@@ -175,7 +175,7 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
 
       return response.send();
     } else if ((QueueResult === QUEUE_RESULT_STATUS.ERROR) || (QueueResult === QUEUE_RESULT_STATUS.SYSTEM_ERROR)) {
-      sendDisconnectEventToClients(notifydata, "queueerror");
+      sendDisconnectEventToClients(notifydata, QueueResult);
 
       return response.send(failedConnection());
     } else {
