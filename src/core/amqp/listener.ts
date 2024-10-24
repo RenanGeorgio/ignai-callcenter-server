@@ -2,6 +2,8 @@ import amqp, { Channel, Connection } from "amqplib";
 import { createClient } from "redis";
 import { redisClient } from "../redis";
 import config from "../../config/env";
+import { QueueData } from "./queue";
+import { QueueAgentDTO } from "./types";
 
 
 export class ListenerQueue {
@@ -10,17 +12,15 @@ export class ListenerQueue {
   connection: Connection | undefined;
   queue: string;
   redisClient: ReturnType<typeof createClient> = redisClient;
-  redisPublisher: ReturnType<typeof createClient>;
+  redisPublisher: QueueData;
 
   constructor(queueName: string = "callcenter") {
     this.queue = queueName;
-    this.redisPublisher = redisClient.duplicate();
+    this.redisPublisher = QueueData.getInstance("on_call");
   }
 
   public async subscribe(): Promise<void> {
     try {
-      await this.redisPublisher.connect();
-
       const connection = await amqp.connect(config.amqp.uri());
       const channel = await connection.createChannel();
       
@@ -36,10 +36,14 @@ export class ListenerQueue {
         this.queue, 
         async (data: any) => {
           if (data) {
-            // @ts-ignore
-            console.log("Data received : ", `${Buffer.from(data.content)}` );
+            const content = Buffer.from(data.content);
+            console.log("Data received : ", `${content}` );
 
-            const result = await this.redisClient.rPush("queued_calls", data.content);
+            const value: QueueAgentDTO = JSON.parse(content);
+            const company = value.filterCompanyId;
+            const key = value.eventData.CallSid;
+
+            const result = await this.redisClient.hSet(company, key, content);
             if (result) {
               channel.ack(data);
             }
@@ -64,14 +68,14 @@ export class ListenerQueue {
     }
   }
 
-  public async findMessage(searchValue: string): Promise<string | null> {
+  public async findCall(company: string , search: string): Promise<string | null> {
     try {
-      const messages = await this.getMessages();
-
-      const foundMessage = messages.find((msg) => msg.includes(searchValue));
+      const foundMessage = await this.redisClient.hGet(company, search);
 
       if (foundMessage) {
-        this.completeTasksAndDeleteMessage(foundMessage);
+        this.completeTasksAndDeleteMessage(company, search);
+        this.setOnCallMessage(foundMessage);
+
         return foundMessage;
       } else {
         return null;
@@ -83,23 +87,75 @@ export class ListenerQueue {
     }
   }
 
-  private async completeTasksAndDeleteMessage(message: string): Promise<void> {
+  public async listCalls(company: string): Promise<string | null> {
     try {
-      await this.redisClient.lRem("queued_calls", 1, message);
+      const res = await this.redisClient.hGetAll(company);
+
+      if (res) {
+        return res;
+      } else {
+        return null;
+      }
+    } catch (error: any) {
+      // @ts-ignore
+      console.error("Error searching messages: ", error);
+      return null;
+    }
+  }
+
+  private async completeTasksAndDeleteMessage(company: string , search: string): Promise<void> {
+    try {
+      await this.redisClient.hDel(company, search);
     } catch (error: any) {
       // @ts-ignore
       console.error("Error deleting message after tasks: ", error);
     }
   }
 
-  public async setOnCallMessage(value: string): Promise<string | number | null> {
+  private async setOnCallMessage(value: string): Promise<void> {
     try {
-      const result = await this.redisPublisher.rPush("on_call", value);
-      return result;
+      const msg: QueueAgentDTO = JSON.parse(value);
+      await this.redisPublisher.setData(msg);
     } catch (error: any) {
       // @ts-ignore
       console.error(error);
-      return null;
+    }
+  }
+
+  public async setRequeueCall(callid: string, company: string): Promise<void> {
+    try {
+      const result: QueueAgentDTO | null = await this.redisPublisher.searchData(callid, company);
+
+      if (result) {
+        await this.redisPublisher.removeData(result);
+
+        const company = result.filterCompanyId;
+        const key = result.eventData.CallSid;
+
+        await this.redisClient.hSet(company, key, result);
+      }
+      
+      return;
+    } catch (error: any) {
+      // @ts-ignore
+      console.error(error);
+      return;
+    }
+  }
+
+  public async setFinishCall(callid: string, company: string): Promise<void> {
+    try {
+      const result: QueueAgentDTO | null = await this.redisPublisher.searchData(callid, company);
+
+      if (result) {
+        await this.redisPublisher.removeData(result);
+      }
+      
+      return;
+    } catch (error: any) {
+      // @ts-ignore
+      console.error(error);
+      return;
     }
   }
 
