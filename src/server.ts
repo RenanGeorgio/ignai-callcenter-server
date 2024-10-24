@@ -3,18 +3,27 @@ import bodyParser from "body-parser";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import RedisStore from "connect-redis";
 import path from "path";
 import pino from "express-pino-logger";
 import { routes } from "./routes";
 import notifyEvents from "./events";
+import { redisClient } from "./core/redis";
 
 const app = express();
+
+const store = new RedisStore({ client: redisClient, prefix: "chatbot:" });
 
 app.use(cors());
 
 app.options('*', cors());
 
 app.use(bodyParser.urlencoded( { extended : false }));
+app.use(bodyParser.json({
+  verify: (req: any, res: Response, buf: any) => {
+    req.rawBody = buf;
+  }
+}));
 
 app.use(express.json());
 
