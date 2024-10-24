@@ -6,16 +6,16 @@ import cookieParser from "cookie-parser";
 import RedisStore from "connect-redis";
 import path from "path";
 import pino from "express-pino-logger";
-
-import { redisClient } from "./core/redis";
 import { routes } from "./routes";
 import notifyEvents from "./events";
-
-const store = new RedisStore({ client: redisClient, prefix: "chatbot:" });
+import { redisClient } from "./core/redis";
 
 const app = express();
 
+const store = new RedisStore({ client: redisClient, prefix: "chatbot:" });
+
 app.use(cors());
+
 app.options('*', cors());
 
 app.use(bodyParser.json({
@@ -23,12 +23,15 @@ app.use(bodyParser.json({
     req.rawBody = buf;
   }
 }));
+
 app.use(bodyParser.urlencoded( { extended : false }));
 
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
+
 app.use(pino());
 
 app.use('/events', notifyEvents);

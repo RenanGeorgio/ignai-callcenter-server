@@ -13,5 +13,5 @@ export type QueueSubscriber = {
 }
 
 export {
-    WebsocketUser
+    WebsocketUser,
 }

@@ -1,4 +1,4 @@
-import amqp, { Channel } from "amqplib";
+import amqp, { Channel, Connection } from "amqplib";
 import config from "../../config/env";
 import { QueueAgentDTO } from "./types";
 
@@ -8,8 +8,8 @@ function generateUuid() {
 
 export class QueueAmqpService {
   static _instance: QueueAmqpService;
-  channel: Channel;
-  connection: any;
+  channel: Channel | undefined;
+  connection: Connection | undefined;
   queue: string;
 
   constructor(queueName: string = "callcenter") {
@@ -21,12 +21,10 @@ export class QueueAmqpService {
   private async init(): Promise<void> {
     try {
       // amqp.connect('amqp://localhost', {clientProperties: {connection_name: 'myFriendlyName'}});
-      this.connection = await amqp.connect(config.queue.amqp);
-      this.channel = await this.connection.createChannel();
-      
+      this.connection = await amqp.connect(config.amqp.uri());
+      this.channel = await this.connection.createChannel();      
       await this.channel.assertQueue(this.queue, { durable: true });
     } catch (error: any) {
-      // @ts-ignore
       console.log(error);
     }
   }
@@ -36,17 +34,19 @@ export class QueueAmqpService {
     const messageId = generateUuid();
     try {
       // @ts-ignore
-      await this.channel.sendToQueue(this.queue, Buffer.from(JSON.stringify(data)), {
+      this.channel.sendToQueue(this.queue, Buffer.from(JSON.stringify(data)), {
         persistent: true,
         contentType: 'application/json',
         correlationId: correlationId,
         messageId: messageId
       });
-          
-      await this.channel.close();
-      await this.connection.close();
+      if (this.channel){
+        await this.channel.close();
+      }    
+      if (this.connection){
+        await this.connection.close();
+      }
     } catch (error: any) {
-      // @ts-ignore
       console.log(error);
     }
   }

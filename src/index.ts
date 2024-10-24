@@ -9,11 +9,11 @@ import "./websocket";
 
 import config from "./config/env";
 
-const queue_port = config.queue.queuePort;
+const queue_port = config.queue.port;
 
 queueHttp.listen(queue_port, () => {
   // @ts-ignore
-  console.log("queue server is running");
+  console.log("Queue server is running");
 });
 
 const port = config.app.port;

@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import { ENQUEUE_STATUS, CALL_STATUS, QUEUE_RESULT_STATUS } from "../../types/constants";
 import { listenerQueue } from "../../core/http";
 import { sendEventToClients, NotifyAgentDTO, sendDisconnectEventToClients, DisconnectAgentDTO } from "../../lib/events/notify-agent";
 import { failedConnection, aboutToConnect, waitMusic, enqueueFailed, finishCall } from "../../lib/documents";
 import { generateNewQueue } from "../../helpers/queue";
-import { CALL_STATUS, ENQUEUE_STATUS, QUEUE_RESULT_STATUS } from "../../assets/constants";
 import { QueueAgentDTO } from "../../core/amqp/types";
 
 export const toConnect = (request: Request, response: Response, next: NextFunction) => {

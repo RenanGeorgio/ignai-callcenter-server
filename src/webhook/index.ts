@@ -1,10 +1,9 @@
-import { Response, NextFunction, Router } from "express";
-import { messageHandler as wbMessageHandler } from "../controllers/com/whatsapp/webhook";
-import { CustomRequest } from "../types";
+import { Response, Request, NextFunction, Router } from "express";
+// import { messageHandler as wbMessageHandler } from "../controllers/com/whatsapp/webhook";
 
 const router = Router(); 
 
-router.get('/', function (req: CustomRequest, res: Response, next: NextFunction) {
+router.get('/', function (req: Request, res: Response, next: NextFunction) {
     let verificationToken;
 
     try {
@@ -24,12 +23,12 @@ router.get('/', function (req: CustomRequest, res: Response, next: NextFunction)
     }
 });
 
-router.post('/', async function (req: CustomRequest, res: Response, next: NextFunction) {
+router.post('/', async function (req: Request, res: Response, next: NextFunction) {
     try {
         const data = req?.body;
         
         if ((data.object != undefined) || (data.entry != undefined)) {
-            await wbMessageHandler(req);
+            // await wbMessageHandler(req);
             return res.sendStatus(200);
         } else {
             return res.sendStatus(400);

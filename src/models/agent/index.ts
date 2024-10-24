@@ -3,11 +3,6 @@ import mongoose from "../../database";
 const { Schema } = mongoose;
 
 const agentSchema = new Schema({
-  _id: {
-    type : String,
-    required : true,
-    unique: true 
-  },
   company: {
     type : String,
     required : true

@@ -1,13 +1,11 @@
 import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
+import config from "../config/env";
 
 const mailOptions = new SMTPTransport({
-    host: process.env.EMAIL_HOST ? process.env.EMAIL_HOST.replace(/[\\"]/g, '') : "",
-    port: parseInt(process.env.EMAIL_PORT ? process.env.EMAIL_PORT.replace(/[\\"]/g, '') : '465'),
-    auth: {
-        user: process.env.EMAIL_USERNAME ? process.env.EMAIL_USERNAME.replace(/[\\"]/g, '') : "",
-        pass: process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.replace(/[\\"]/g, '') : ""
-    }
+    host: config.email.host,
+    port: config.email.port,
+    ...(config.email.username ? { auth: { user: config.email.username, pass: config.email.password }}: {})
 })
 
 const mail = nodemailer.createTransport(mailOptions);

@@ -17,7 +17,6 @@ const url: string = config.app.database;
   }).catch((err: any) => { 
     console.log(err.message) 
   });
-
   mongoose.Promise = global.Promise;
 })();
 
