@@ -1,4 +1,4 @@
-import amqp, { Channel } from "amqplib";
+import amqp, { Channel, Connection } from "amqplib";
 import { createClient } from "redis";
 import { redisClient } from "../redis";
 import config from "../../config/env";
@@ -8,8 +8,8 @@ import { QueueAgentDTO } from "./types";
 
 export class ListenerQueue {
   static _instance: ListenerQueue;
-  channel: Channel;
-  connection: any;
+  channel: Channel | undefined;
+  connection: Connection | undefined;
   queue: string;
   redisClient: ReturnType<typeof createClient> = redisClient;
   redisPublisher: QueueData;
@@ -21,7 +21,7 @@ export class ListenerQueue {
 
   public async subscribe(): Promise<void> {
     try {
-      const connection = await amqp.connect(config.queue.amqp);
+      const connection = await amqp.connect(config.amqp.uri());
       const channel = await connection.createChannel();
       
       // @ts-ignore
