@@ -1,5 +1,10 @@
 import { redisClient } from "../core/redis";
 
+export type ClientInQ = {
+    queue: string
+    user: string
+};
+
 export async function removeUserQueue(queue: string, user: string): Promise<boolean> {
     const removed = await redisClient.sRem(queue, user);
 
@@ -10,7 +15,7 @@ export async function removeUserQueue(queue: string, user: string): Promise<bool
     }
 }
 
-export async function addUserQueue(company: string, queueName: string) {
+export async function addUserQueue(company: string, queueName: string): Promise<ClientInQ> {
     const queues = await redisClient.keys(company + ':' + queueName + ':*');
 
     if (queues) {
@@ -50,7 +55,7 @@ export async function addUserQueue(company: string, queueName: string) {
     }
 }
 
-export async function listUsersQueue(company: string, queueName: string) {
+export async function listUsersQueue(company: string, queueName: string): Promise<any> {
     let response: any = [];
     const queues = await redisClient.keys(company + ':' + queueName + ':*');
 
