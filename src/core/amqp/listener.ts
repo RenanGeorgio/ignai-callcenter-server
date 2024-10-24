@@ -1,4 +1,4 @@
-import amqp, { Channel } from "amqplib";
+import amqp, { Channel, Connection } from "amqplib";
 import { createClient } from "redis";
 import { redisClient } from "../redis";
 import config from "../../config/env";
@@ -6,8 +6,8 @@ import config from "../../config/env";
 
 export class ListenerQueue {
   static _instance: ListenerQueue;
-  channel: Channel;
-  connection: any;
+  channel: Channel | undefined;
+  connection: Connection | undefined;
   queue: string;
   redisClient: ReturnType<typeof createClient> = redisClient;
   redisPublisher: ReturnType<typeof createClient>;
@@ -21,7 +21,7 @@ export class ListenerQueue {
     try {
       await this.redisPublisher.connect();
 
-      const connection = await amqp.connect(config.queue.amqp);
+      const connection = await amqp.connect(config.amqp.uri());
       const channel = await connection.createChannel();
       
       // @ts-ignore
@@ -92,7 +92,7 @@ export class ListenerQueue {
     }
   }
 
-  public async setOnCallMessage(value: string): Promise<string | null> {
+  public async setOnCallMessage(value: string): Promise<string | number | null> {
     try {
       const result = await this.redisPublisher.rPush("on_call", value);
       return result;

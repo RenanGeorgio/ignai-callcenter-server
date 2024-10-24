@@ -9,7 +9,7 @@ import "./websocket";
 
 import config from "./config/env";
 
-const queue_port = config.queue.queuePort;
+const queue_port = config.queue.port;
 
 queueHttp.listen(queue_port, () => {
   // @ts-ignore

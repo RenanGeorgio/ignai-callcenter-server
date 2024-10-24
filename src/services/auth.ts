@@ -1,8 +1,9 @@
 import axios from "axios";
 import https from "https";
+import config from "../config/env";
 
 const AuthApi = axios.create({
-  baseURL: process.env.USER_CONTROLL ? process.env.USER_CONTROLL.replace(/[\\"]/g, '') : "",
+  baseURL: config.userControl.url,
   withCredentials: true,
   httpsAgent: new https.Agent({  
     rejectUnauthorized: false

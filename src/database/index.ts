@@ -4,12 +4,7 @@ import config from "../config/env";
 const url: string = config.app.database;
 
 (async () => {
-  await mongoose.connect(url, 
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,      
-    }
-  ).then(() => { 
+  await mongoose.connect(url).then(() => { 
     console.log("Database connected!") 
   }).catch((err: any) => { 
     console.log(err.message) 

@@ -22,6 +22,8 @@ import * as DocumentsController from "../../controllers/documents/controller";
 // Server
 import Server from "../../controllers/server";
 
+import * as TesteQueue from "../../controllers/testeQueue";
+
 routes
     // call
     .post('/token', TokenController.getToken)
@@ -66,6 +68,11 @@ routes
 
     // Test Server
     .get('/server', Server.status)
+
+    // ROTAS DE TESTE PARA FILA EM ESPERA NO REDIS - Apagar quando não precisar
+    .get('/teste/pegar', TesteQueue.pegar)
+    .post('/teste/adicionar', TesteQueue.adicionar)
+    .post('/teste/remover', TesteQueue.remover)
 
 export default routes;
 
