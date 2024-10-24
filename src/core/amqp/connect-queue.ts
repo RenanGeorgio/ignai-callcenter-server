@@ -20,11 +20,12 @@ export class QueueAmqpService {
 
   private async init(): Promise<void> {
     try {
-      // amqp.connect('amqp://localhost', {clientProperties: {connection_name: 'myFriendlyName'}});
       this.connection = await amqp.connect(config.amqp.uri());
-      this.channel = await this.connection.createChannel();      
+      this.channel = await this.connection.createChannel();   
+
       await this.channel.assertQueue(this.queue, { durable: true });
     } catch (error: any) {
+      // @ts-ignore
       console.log(error);
     }
   }
@@ -40,13 +41,16 @@ export class QueueAmqpService {
         correlationId: correlationId,
         messageId: messageId
       });
+
       if (this.channel){
         await this.channel.close();
       }    
+      
       if (this.connection){
         await this.connection.close();
       }
     } catch (error: any) {
+      // @ts-ignore
       console.log(error);
     }
   }
