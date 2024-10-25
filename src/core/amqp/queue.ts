@@ -72,7 +72,7 @@ export class QueueData {
     }
   }
 
-  public async removeData(data: QueueAgentDTO): Promise<void> {
+  public async removeData(data: QueueAgentDTO): Promise<void> { // TODO: colocar função de remoção
     try {
       this.size = this.size + 1;
       const index = 'data:on_call:' + this.size.toString();
