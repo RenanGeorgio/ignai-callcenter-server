@@ -63,7 +63,7 @@ export class QueueData {
   public async setData(data: QueueAgentDTO): Promise<void> {
     try {
       this.size = this.size + 1;
-      const index = 'data:on_call:' + this.size.toString();
+      const index = 'data:on_call:' + data.client;
       //await this.redisPublisher.hSet('data:on_call:1', {name: 'Fluffy', species: 'cat', age: 3});
       await this.redisPublisher.hSet(index, data);
     } catch (error: any) {
@@ -74,10 +74,10 @@ export class QueueData {
 
   public async removeData(data: QueueAgentDTO): Promise<void> { // TODO: colocar função de remoção
     try {
-      this.size = this.size + 1;
-      const index = 'data:on_call:' + this.size.toString();
+      const index = 'data:on_call:' + data.client;
       //await this.redisPublisher.hSet('data:on_call:1', {name: 'Fluffy', species: 'cat', age: 3});
-      await this.redisPublisher.hSet(index, data);
+      await this.redisPublisher.hDel(index, data);
+      this.size = this.size - 1;
     } catch (error: any) {
       // @ts-ignore
       console.error(error);
