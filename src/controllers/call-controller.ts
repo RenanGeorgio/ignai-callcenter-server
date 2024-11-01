@@ -87,7 +87,7 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
 export const handleOutgoingCall = (request: Request, response: Response, next: NextFunction) => {
   try {
     const { To } = request.body;
-
+    
     const callerId = config.twilio?.callerId;
 
     const client = new twilio.twiml.VoiceResponse();
@@ -120,8 +120,10 @@ export const handleDirectIncomingCall = (request: Request, response: Response, n
   try {
     // @ts-ignore
     console.log(request.body);
+    const { From } = request.body;
+
     const client = new twilio.twiml.VoiceResponse();
-    const dial = client.dial({ callerId: request.body.From, answerOnBridge: true });
+    const dial = client.dial({ callerId: From, answerOnBridge: true });
 
     const callerId = config.twilio?.callerId;
     //dial.client(callerId); // puxar a identity
@@ -251,11 +253,11 @@ export const handleDequeueCall = (request: Request, response: Response, next: Ne
 };
 
 export const makeCall = (request: Request, response: Response, next: NextFunction) => {
-  try {
+  try { 
     const client = twilio(config.twilio.accountSid, config.twilio.apiSecret);
 
     const { To, From } = request.body;
-
+    
     async function createCall(To: string, From: string) {
       const call = await client.calls.create({
         from: From,

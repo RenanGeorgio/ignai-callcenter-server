@@ -1,6 +1,7 @@
 import { Router } from "express";
 import twilio from "twilio";
 
+
 const routes = Router();
 
 // Token
@@ -22,9 +23,19 @@ import * as DocumentsController from "../../controllers/documents/controller";
 // Server
 import Server from "../../controllers/server";
 
+// User
+import * as UserController from "../../controllers/user-controller";
+import identifyFrom from "../../middlewares/identifyFrom";
+
 routes
     // call
     .post('/token', TokenController.getToken)
+    /*
+    // Thomas
+    .post('/incoming', twilio.webhook({ validate: false }), identifyFrom,  CallController.handleIncomingCall)
+    .post('/call', twilio.webhook({ validate: false }), identifyFrom, CallController.handleCall)
+    */
+
     .post('/outgoing', CallController.handleOutgoingCall)
     .post('/direct-incoming', twilio.webhook({ validate: false }), CallController.handleDirectIncomingCall)
     .post('/enqueue-incoming', twilio.webhook({ validate: false }), CallController.handleIncomingQueuedCall)
@@ -66,6 +77,12 @@ routes
 
     // Test Server
     .get('/server', Server.status)
+
+    // User
+    .get('/user/:id', UserController.find)
+    .post('/user', UserController.create)
+    .put('/user/:id', UserController.update)
+    .delete('/user/:id', UserController.del)
 
 export default routes;
 
