@@ -19,7 +19,6 @@ queueApp.use(cookieParser());
 
 const amqpService = QueueAmqpService.getInstance("callcenter");
 
-// routes
 queueApp.use(queueRoutes);
 
 export {
