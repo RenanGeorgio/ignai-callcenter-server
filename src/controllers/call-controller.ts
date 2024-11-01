@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
 import { welcome } from "../lib/ivr";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
+import config from "../config/env";
+
 
 export const handleCall = (request: Request, response: Response, next: NextFunction) => {
   const hasIvr = true; // TO-DO: checkar se o usuario possui IVR (URA)
