@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { amqpService, listenerQueue } from "../../core/http";
 import { QueueAgentDTO } from "../../core/amqp/types";
+import { listUsersQueue } from "../../helpers/queue";
 
 export const handleMsg = (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -39,3 +40,19 @@ export const handleOnCall = (request: Request, response: Response, next: NextFun
     next(error);
   }
 };
+
+export const getQueueData = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { company, queueId } = request.query;
+
+    const queues = await listUsersQueue(company, queueId);
+
+    const queue_ = queues[-1];
+    const { queue, members } = queue_;
+    
+    return response.status(201).send({ queue: queue, size: String(members.length) });
+  }
+  catch (error) {
+    next(error);
+  }
+}
