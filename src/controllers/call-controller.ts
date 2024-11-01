@@ -11,9 +11,9 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log(body);
   try {
-    const { Called, Caller, From, To, Direction, twilioConfig } = body;
+    const { Called, Caller, From, To, Direction } = body;
     
-    const callerId = twilioConfig?.callerId; // NUMERO USADO
+    const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
     // @ts-ignore
     console.log(callerId);
@@ -84,9 +84,9 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
 
 export const handleOutgoingCall = (request: Request, response: Response, next: NextFunction) => {
   try {
-    const { To, twilioConfig } = request.body;
-
-    const callerId = twilioConfig?.callerId;
+    const { To } = request.body;
+    
+    const callerId = config.twilio?.callerId;
 
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: callerId });
@@ -118,12 +118,12 @@ export const handleDirectIncomingCall = (request: Request, response: Response, n
   try {
     // @ts-ignore
     console.log(request.body);
-    const { From, twilioConfig } = request.body;
+    const { From } = request.body;
 
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: From, answerOnBridge: true });
 
-    const callerId = twilioConfig?.callerId;
+    const callerId = config.twilio?.callerId;
     //dial.client(callerId); // puxar a identity
     dial.client('Samuel');
     // @ts-ignore
@@ -252,10 +252,10 @@ export const handleDequeueCall = (request: Request, response: Response, next: Ne
 };
 
 export const makeCall = (request: Request, response: Response, next: NextFunction) => {
-  try {
-    
-    const { To, From, twilioConfig } = request.body;
-    const client = twilio(twilioConfig.accountSid, twilioConfig.apiSecret);
+  try { 
+    const client = twilio(config.twilio.accountSid, config.twilio.apiSecret);
+
+    const { To, From } = request.body;
     
     async function createCall(To: string, From: string) {
       const call = await client.calls.create({
