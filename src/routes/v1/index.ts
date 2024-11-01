@@ -1,6 +1,7 @@
 import { Router } from "express";
 import twilio from "twilio";
 
+
 const routes = Router();
 
 // Token
@@ -32,12 +33,12 @@ routes
     .post('/call', twilio.webhook({ validate: false }), identifyFrom, CallController.handleCall)
     */
 
-    .post('/outgoing', identifyFrom, CallController.handleOutgoingCall)
+    .post('/outgoing', CallController.handleOutgoingCall)
     .post('/direct-incoming', twilio.webhook({ validate: false }), CallController.handleDirectIncomingCall)
     .post('/enqueue-incoming', twilio.webhook({ validate: false }), CallController.handleIncomingQueuedCall)
     .post('/incoming', twilio.webhook({ validate: false }), CallController.handleIncomingCall)
     .post('/dequeue-incoming', twilio.webhook({ validate: false }), CallController.handleDequeueCall)
-    .post('/goodbye', identifyFrom, CallController.handleFinishCall)
+    .post('/goodbye', CallController.handleFinishCall)
     .post('/call', twilio.webhook({ validate: false }), CallController.handleCall)
 
     // ivr
