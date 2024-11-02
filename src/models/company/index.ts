@@ -8,6 +8,10 @@ const companySchema = new Schema({
     required : true,
     unique: true 
   },
+  identity: {
+    type: String,
+    required: true
+  },
   phoneInfo: [
     {
       phoneNumber: {

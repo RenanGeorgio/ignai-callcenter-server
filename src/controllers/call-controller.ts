@@ -1,17 +1,21 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
 import { welcome } from "../lib/ivr";
+import { waitMusic } from "../lib/documents";
 import { addUserQueue, ClientInQ } from "../helpers/queue";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
 import { Company } from "../models";
+import { Obj } from "../types";
 
 
-export const handleCall = (request: Request, response: Response, next: NextFunction) => {
-  const hasIvr = true; // TO-DO: checkar se o usuario possui IVR (URA)
+export const handleCall = async (request: Request, response: Response, next: NextFunction) => {
   const body = request.body;
 
   let dial: any = undefined;
+  let company: Obj | undefined = undefined;
+  let oringinCompany: Obj | undefined = undefined;
+  let new_oringin: string = "";
   // @ts-ignore
   console.log(body);
   try {
@@ -34,8 +38,6 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
     // @ts-ignore
     console.log(callerId);
 
-    let new_oringin: string = "";
-
     const oringin = From | Caller
     if ((!isNaN(oringin)) || (typeof oringin === 'number')) {
       new_oringin = oringin.toString();
@@ -43,57 +45,83 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
       new_oringin = oringin;
     }
 
-    if (To && isAValidPhoneNumber(To)) {
-      const client = await Company.findOne({"phoneInfo.phoneNumber": To});
+    if (To) {
+      if ((To.length > 0) && (isAValidPhoneNumber(To))) {
+        const musicResponse = waitMusic();
+        response.type('text/xml');
+        response.send(musicResponse);
+
+        company = await Company.findOne({ "phoneInfo.phoneNumber": To });
+
+        if ((new_oringin.length > 0) && (isAValidPhoneNumber(new_oringin))) {
+          oringinCompany = await Company.findOne({ "phoneInfo.phoneNumber": new_oringin });
+        }
+      }
     }
 
-    if (((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)) ||
-      ()) {
-      if (hasIvr) {
+    if (
+      ((To === callerId) && (callerId != undefined)) ||
+      ((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)) ||
+      ((company != undefined) && (oringinCompany == undefined))
+    ) {
+      if (company?.welcomeId) {
         // @ts-ignore
         console.log('welcome');
-        const companyId = "1";
-        response.send(welcome(companyId));
+        response.send(welcome(company._id));
       } else {
         if (isAValidPhoneNumber(new_oringin)) {
-          // @ts-ignore
-          console.log(new_oringin)
           dial = client.dial({ callerId: new_oringin, answerOnBridge: true });
         } else {
-          // @ts-ignore
-          console.log('teste')
           dial = client.dial({ answerOnBridge: true });
         }
 
         // @ts-ignore
         console.log(callerId)
-        dial.client(callerId); // puxar a identity
+
+        const identity = company?.identity;
+
+        if (identity) {
+          dial.client(identity);
+        } else {
+          dial.client(callerId);
+        }
 
         // @ts-ignore
         console.log('respondendo')
         response.set('Content-Type', 'text/xml');
         response.send(client.toString());
       }
-    } else {
-      dial = client.dial({ callerId: callerId });
-      // @ts-ignore
-      console.log(dial);
-
-      if ((To != undefined) && (To != callerId) && (To.length > 0)) {
-        // @ts-ignore
-        console.log(To)
-        const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-        dial[attr]({}, To);
+    } else if ((To) && (To.length > 0)) {
+      if (isAValidPhoneNumber(new_oringin)) {
+        dial = client.dial({ callerId: new_oringin });
       } else {
-        // @ts-ignore
-        console.log('support')
-        dial.client({}, 'support_agent'); // TO-DO: ref -> browser call
+        dial = client.dial({ callerId: callerId });
       }
+     
+      const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
+      dial[attr]({}, To);
 
       // @ts-ignore
       console.log('respondendo')
       response.set('Content-Type', 'text/xml');
       response.send(client.toString());
+    } else {
+      try {
+        dial = client.dial({ callerId: callerId });
+        dial.client({}, 'support_agent'); // ref -> browser call
+
+        // @ts-ignore
+        console.log('respondendo')
+        response.set('Content-Type', 'text/xml');
+        response.send(client.toString());
+      } catch (error: any) {
+        console.error(error);
+
+        client.say('Obrigado por ligar!');
+
+        response.type('text/xml');
+        response.send(client.toString());
+      }
     }
 
     response.status(202);
@@ -112,16 +140,6 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
     const client = new twilio.twiml.VoiceResponse();
     const dial = client.dial({ callerId: callerId });
 
-    //dial.number(To);
-
-    /*
-    if (To) {
-      const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-      dial[attr]({}, To);
-    } else {
-      dial.client({}, "support_agent"); // TO-DO: ref -> browser call
-    }
-      */
     const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
     dial[attr]({}, To);
 
@@ -300,10 +318,7 @@ export const handleFinishCall = (request: Request, response: Response, next: Nex
   try {
     const client = new twilio.twiml.VoiceResponse();
 
-    client.say(
-      "Thank you for using Call Congress! " +
-      "Your voice makes a difference. Goodbye."
-    );
+    client.say("Muito obrigado por ligar!");
 
     client.hangup();
 
