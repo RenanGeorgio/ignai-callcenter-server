@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { listenerQueue } from "../../core/http";
 import { sendEventToClients, NotifyAgentDTO, sendDisconnectEventToClients, DisconnectAgentDTO } from "../../lib/events/notify-agent";
-import { failedConnection, aboutToConnect, waitMusic, enqueueFailed, finishCall } from "../../lib/documents";
+import { failedConnection, aboutToConnect, waitMusic, enqueueFailed, finishCall, aboutToPickup } from "../../lib/documents";
 import config from "../../config/env";
 import { ENQUEUE_STATUS, CALL_STATUS, QUEUE_RESULT_STATUS } from "../../types/constants";
 import { QueueAgentDTO } from "../../core/amqp/types";
@@ -183,6 +183,31 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
       console.log(value);
       return response.send(finishCall(QueueSid));
     }
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const aboutToCall = (request: Request, response: Response, next: NextFunction) => {
+  try {
+    return response.send(aboutToPickup());
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const finishDial = (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const {
+      DialCallStatus,
+      DialCallSid,
+      DialCallDuration,
+      DialBridged
+    }  = request.body;
+
+    return response.sendStatus(204);
   }
   catch (error) {
     next(error);

@@ -8,9 +8,13 @@ import config from "../config/env";
 import { Company } from "../models";
 import { Obj } from "../types";
 
+// REFERENCIAS PARA OPERACOES 'AVANCADAS' DA TWILIO
+// [1] - https://console.twilio.com/us1/develop/twimlets/create?twimlet=forward
+// [2] - https://console.twilio.com/us1/develop/twimlets/create?twimlet=simulring
+// [3] - https://console.twilio.com/us1/develop/twimlets/create?twimlet=findme
 
 // Ponto inicial de entrada das ligacoes
-export const handleCall = async (request: Request, response: Response, next: NextFunction) => {
+export const handleCall = async (request: Request, response: Response, next: NextFunction) => { // nao sei se pode ser async
   const body = request.body;
 
   let dial: any = undefined;
@@ -100,7 +104,13 @@ export const handleCall = async (request: Request, response: Response, next: Nex
       }
      
       const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-      dial[attr]({}, To);
+      dial[attr]({
+        url: '/about-to-pickup',
+        method: 'POST',
+        statusCallbackEvent: 'initiated ringing answered completed',
+        statusCallback: '/call-callback',
+        statusCallbackMethod: 'POST'
+      }, To);
 
       // @ts-ignore
       console.log('respondendo')
@@ -108,7 +118,11 @@ export const handleCall = async (request: Request, response: Response, next: Nex
       response.send(client.toString());
     } else {
       try {
-        dial = client.dial({ callerId: callerId });
+        dial = client.dial({ 
+          action: '/finish-dial',
+          method: 'POST',
+          callerId: callerId
+        });
         dial.client({}, 'support_agent'); // ref -> browser call
 
         // @ts-ignore
@@ -143,7 +157,13 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
     const dial = client.dial({ callerId: callerId });
 
     const attr = isAValidPhoneNumber(To) ? 'number' : 'client';
-    dial[attr]({}, To);
+    dial[attr]({
+      url: '/about-to-pickup',
+      method: 'POST',
+      statusCallbackEvent: 'initiated ringing answered completed',
+      statusCallback: '/call-callback',
+      statusCallbackMethod: 'POST'
+    }, To);
 
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());
@@ -338,3 +358,10 @@ export const handleFinishCall = (request: Request, response: Response, next: Nex
     next(error);
   }
 };
+
+/*
+Status callbacks do not control call flow, so TwiML does not need to be returned. 
+If you do respond, use status code 204 No Content or 200 OK with 
+Content-Type: text/xml and an empty <Response/> in the body. 
+Not responding properly will result in warnings in Debugger.
+*/

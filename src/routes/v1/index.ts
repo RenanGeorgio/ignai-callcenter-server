@@ -69,6 +69,8 @@ routes
     .post('/about-to-connect', twilio.webhook({ validate: false }), DocumentsController.toConnect)
     .post('/wait-room', twilio.webhook({ validate: false }), DocumentsController.toWaitRoom)
     .post('/dequeue-action', DocumentsController.toActionTake)
+    .post('/about-to-pickup', DocumentsController.aboutToCall)
+    .post('/finish-dial', DocumentsController.finishDial)
 
     // Test Server
     .get('/server', Server.status)
