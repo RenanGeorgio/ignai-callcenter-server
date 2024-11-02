@@ -3,6 +3,8 @@ import { menu, planets, welcome } from "../lib/ivr";
 
 export const goToMenu = (request: Request, response: Response, next: NextFunction) => {
   try {
+    // @ts-ignore
+    console.log(request.body);
     const { Digits } = request.body
 
     return response.send(menu(Digits));
@@ -15,6 +17,8 @@ export const goToMenu = (request: Request, response: Response, next: NextFunctio
 export const goToWelcome = (request: Request, response: Response, next: NextFunction) => {
   const companyId = "1";
   try {
+    // @ts-ignore
+    console.log(request.body);
     const {
       CallSid,
       Caller, 
@@ -36,6 +40,8 @@ export const goToWelcome = (request: Request, response: Response, next: NextFunc
 
 export const goToPlanets = (request: Request, response: Response, next: NextFunction) => {
   try {
+    // @ts-ignore
+    console.log(request.body);
     const { Digits } = request.body
 
     response.send(planets(Digits));
