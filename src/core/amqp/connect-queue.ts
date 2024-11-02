@@ -2,6 +2,7 @@ import amqp, { Channel, Connection } from "amqplib";
 import config from "../../config/env";
 import { QueueAgentDTO } from "./types";
 
+
 function generateUuid() {
   return Math.random().toString() + Math.random().toString() + Math.random().toString();
 }

@@ -46,6 +46,8 @@ routes
     .get('/queue/clients', QueueController.listClientMembers)
     .post('/requeue', QueueController.handleRequeueCall)
     .post('/finish-call', QueueController.handleFinishCall)
+    .post('/on-call', QueueController.handleOnCall)
+    .get('/queue-info', QueueController.getQueueData)
 
     // company
     .get('/companies', CompanyController.listCompanies)

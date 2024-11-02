@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import twilio from "twilio";
 import { listenerQueue } from "../core/http";
+import { listUsersQueue } from "../helpers/queue";
 import config from "../config/env";
 import { Obj } from "../types";
+
 
 export const list = async (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -98,6 +100,45 @@ export const handleFinishCall = async (request: Request, response: Response, nex
     await listenerQueue.setFinishCall(CallSid, company);
 
     return response.status(201).send({ message: "Finish Call" });
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const handleOnCall = (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { company } = request.body;
+
+    if (!company) {
+      return response.status(400).send({ message: "Missing required filds" });
+    }
+    
+    const value = listenerQueue.listCalls(company);
+
+    if (!value) {
+      const calls = JSON.parse(value);
+
+      return response.status(201).send({ members: calls });
+    } else {
+      return response.status(201).send({ message: [] });
+    }
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+export const getQueueData = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const { company, queueId } = request.query;
+
+    const queues = await listUsersQueue(company, queueId);
+
+    const queue_ = queues[-1];
+    const { queue, members } = queue_;
+    
+    return response.status(201).send({ queue: queue, size: String(members.length) });
   }
   catch (error) {
     next(error);
