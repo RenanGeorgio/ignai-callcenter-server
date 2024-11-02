@@ -9,6 +9,7 @@ import { Company } from "../models";
 import { Obj } from "../types";
 
 
+// Ponto inicial de entrada das ligacoes
 export const handleCall = async (request: Request, response: Response, next: NextFunction) => {
   const body = request.body;
 
@@ -131,6 +132,7 @@ export const handleCall = async (request: Request, response: Response, next: Nex
   }
 };
 
+// Tratamento para ligacoes realizadas (fora do ponto de entrada)
 export const handleOutgoingCall = (request: Request, response: Response, next: NextFunction) => {
   try {
     const { To } = request.body;
@@ -151,6 +153,7 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
   }
 };
 
+// Tratamento para mandar incoming direto para um agente (fora do ponto de entrada)
 export const handleDirectIncomingCall = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log('incoming');
@@ -174,14 +177,15 @@ export const handleDirectIncomingCall = (request: Request, response: Response, n
   }
 };
 
+// Tratamento para mandar incoming em modo default (fora do ponto de entrada)
 export const handleIncomingCall = (request: Request, response: Response, next: NextFunction) => {
-  const { Caller, From, To } = request.body;
-
-  const caller = From ? From : Caller;
+  const client = new twilio.twiml.VoiceResponse();
 
   let dial: any = undefined;
   try {
-    const client = new twilio.twiml.VoiceResponse();
+    const { Caller, From, To } = request.body;
+
+    const caller = From ? From : Caller;
 
     if (isAValidPhoneNumber(caller)) {
       dial = client.dial({ callerId: caller, answerOnBridge: true });
@@ -189,14 +193,11 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
       dial = client.dial({ answerOnBridge: true });
     }
 
-    // TO-DO: Usar o To (ou outro parametro confiavel) para descobrir a empresa
     dial.queue({
       url: '/about-to-connect',
       method: 'POST'
-    }, 'support');
+    }, 'default');
 
-    // @ts-ignore
-    console.log('respondendo')
     response.set('Content-Type', 'text/xml');
     response.send(client.toString());
   }
@@ -205,7 +206,8 @@ export const handleIncomingCall = (request: Request, response: Response, next: N
   }
 };
 
-export const handleIncomingQueuedCall = async (request: Request, response: Response, next: NextFunction) => {
+// Coloca ligacao na fila de espera
+export const handleIncomingQueuedCall = (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("handleIncomingQueuedCall");
   const { queue, company } = request.query;
@@ -217,28 +219,33 @@ export const handleIncomingQueuedCall = async (request: Request, response: Respo
     // @ts-ignore
     console.log(request.body);
 
-    const client = new twilio.twiml.VoiceResponse();
+    async function pushToQueue(companyId: string, queueId: string) {
+      const client = new twilio.twiml.VoiceResponse();
 
-    const user: ClientInQ = await addUserQueue(company, queue);
+      const user: ClientInQ = await addUserQueue(companyId, queueId);
 
-    client.enqueue(
-      {
-        action: `/dequeue-action?company=${company}`,
-        method: 'POST',
-        waitUrl: `/wait-room?queue=${user.queue}&company=${company}&client=${user.user}`,
-        waitUrlMethod: 'POST',
-      }, 
-      user.queue
-    );
+      client.enqueue(
+        {
+          action: `/dequeue-action?company=${companyId}`,
+          method: 'POST',
+          waitUrl: `/wait-room?queue=${user.queue}&company=${companyId}&client=${user.user}`,
+          waitUrlMethod: 'POST',
+        }, 
+        user.queue
+      );
 
-    response.set('Content-Type', 'text/xml');
-    response.send(client.toString());
+      response.set('Content-Type', 'text/xml');
+      response.send(client.toString());
+    }
+
+    pushToQueue(company, queue);
   }
   catch (error) {
     next(error);
   }
 };
 
+// Puxa ligacao da fila de espera
 export const handleDequeueCall = async (request: Request, response: Response, next: NextFunction) => {
   // @ts-ignore
   console.log("handleDequeueCall");
@@ -288,6 +295,7 @@ export const handleDequeueCall = async (request: Request, response: Response, ne
   }
 };
 
+// Fazer ligacao via API
 export const makeCall = (request: Request, response: Response, next: NextFunction) => {
   try {
     const client = twilio(config.twilio.accountSid, config.twilio.apiSecret);
@@ -314,6 +322,7 @@ export const makeCall = (request: Request, response: Response, next: NextFunctio
   }
 };
 
+// Mensagem de finalizacao
 export const handleFinishCall = (request: Request, response: Response, next: NextFunction) => {
   try {
     const client = new twilio.twiml.VoiceResponse();
