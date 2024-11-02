@@ -15,6 +15,18 @@ export const goToMenu = (request: Request, response: Response, next: NextFunctio
 export const goToWelcome = (request: Request, response: Response, next: NextFunction) => {
   const companyId = "1";
   try {
+    const {
+      CallSid,
+      Caller, 
+      From, 
+      To,
+      CallStatus, 
+      Direction,
+      ForwardedFrom, 
+      ParentCallSid, 
+      CallToken
+    } = request.body;
+    
     response.send(welcome(companyId));
   }
   catch (error) {

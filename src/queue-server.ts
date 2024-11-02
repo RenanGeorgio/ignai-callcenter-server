@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import { queueRoutes } from "./routes";
 import { QueueAmqpService } from "./core/amqp/connect-queue";
 
+
 const queueApp = express();
 
 queueApp.use(cors());

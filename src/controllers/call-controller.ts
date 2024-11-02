@@ -4,6 +4,7 @@ import { welcome } from "../lib/ivr";
 import { addUserQueue, ClientInQ } from "../helpers/queue";
 import { isAValidPhoneNumber } from "../helpers/valid-phone-number";
 import config from "../config/env";
+import { Company } from "../models";
 
 
 export const handleCall = (request: Request, response: Response, next: NextFunction) => {
@@ -14,10 +15,22 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
   // @ts-ignore
   console.log(body);
   try {
-    const { Called, Caller, From, To, Direction } = body;
+    const {
+      CallSid,
+      Called,
+      Caller, 
+      From, 
+      To,
+      CallStatus, 
+      Direction,
+      ForwardedFrom, 
+      ParentCallSid, 
+      CallToken
+    } = body;
     
     const callerId = config.twilio?.callerId;
     const client = new twilio.twiml.VoiceResponse();
+
     // @ts-ignore
     console.log(callerId);
 
@@ -30,7 +43,12 @@ export const handleCall = (request: Request, response: Response, next: NextFunct
       new_oringin = oringin;
     }
 
-    if ((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)) {
+    if (To && isAValidPhoneNumber(To)) {
+      const client = await Company.findOne({"phoneInfo.phoneNumber": To});
+    }
+
+    if (((Direction.toLowerCase() === 'inbound') && (To.length === 0) && (new_oringin.length > 0)) ||
+      ()) {
       if (hasIvr) {
         // @ts-ignore
         console.log('welcome');

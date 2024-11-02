@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
-import generateQueue from "../lib/generate-queue";
 import { Company } from "../models";
+
 
 export const listCompanies = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -40,8 +40,6 @@ export const createCompany = async (req: Request, res: Response, next: NextFunct
     if (!client) {
       return res.status(400).send({ message: client });
     }
-
-    generateQueue(client.queues, client._id); // gerando as filas de atendimento
 
     return res.status(201).send({
       _id: client._id,
