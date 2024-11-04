@@ -6,6 +6,7 @@ import config from "../config/env";
 import { Obj } from "../types";
 
 
+// TO-DO: mudar pois nao usa a atual forma das filas
 export const list = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const accountSid = config.twilio.accountSid;
@@ -22,6 +23,7 @@ export const list = async (request: Request, response: Response, next: NextFunct
   }
 };
 
+// TO-DO: mudar pois nao usa a atual forma das filas
 export const listMembers = async (request: Request, response: Response, next: NextFunction) => {
   const m: Obj[] = [];
   try {
