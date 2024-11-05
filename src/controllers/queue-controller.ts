@@ -57,7 +57,7 @@ export const listClientMembers = async (request: Request, response: Response, ne
       return response.status(400).send({ message: "Missing required filds" });
     }
     
-    const value = listenerQueue.listCalls(company);
+    const value = listenerQueue.listCalls(String(company));
 
     if (!value) {
       const calls = JSON.parse(value);
@@ -94,7 +94,7 @@ export const handleFinishCall = async (request: Request, response: Response, nex
     const { CallSid, company } = request.body;
 
     if (!company) {
-      return response.status(400).send({ message: "Missing required filds" });
+      return response.status(400).send({ message: "Missing required fields" });
     }
     
     await listenerQueue.setFinishCall(CallSid, company);
@@ -133,12 +133,28 @@ export const getQueueData = async (request: Request, response: Response, next: N
   try {
     const { company, queueId } = request.query;
 
-    const queues = await listUsersQueue(company, queueId);
-
-    const queue_ = queues[-1];
-    const { queue, members } = queue_;
+    if (!company){
+      return response.status(400).send({ message: "Missing required fields" });
+    }
+    if (!queueId) {
+      return response.status(400).send({ message: "Missing required fields" });
+    }
+    const queues = await listUsersQueue(String(company), String(queueId));
     
-    return response.status(201).send({ queue: queue, size: String(members.length) });
+    let totalSize = 0
+    if (queues){
+      if (queues.length > 0){
+        for (const queue of queues) {
+          totalSize = totalSize + queue.members.length
+        }
+        const lastQueue = queues.map((queue) => { return Number(queue.queue.replace(company + ':' + queueId + ':', '')) }).sort().pop()
+        const size = queues.find((queue) => { return queue.queue == company + ':' + queueId + ':' + lastQueue }).length
+        return response.status(200).send({ queueId: company + ':' + queueId + ':' + lastQueue, size, totalSize });
+      }
+    }
+    else {
+      return response.status(200).send({ queueId: company + ':' + queueId + ':1', size: 0, totalSize: 0 });
+    }
   }
   catch (error) {
     next(error);

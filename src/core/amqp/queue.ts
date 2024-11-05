@@ -2,6 +2,7 @@ import { createClient } from "redis";
 import { redisClient } from "../redis";
 import { data } from "./data";
 import { QueueAgentDTO } from "./types";
+import { Obj } from "../../types";
 
 
 export class QueueData {
@@ -22,12 +23,12 @@ export class QueueData {
     try {
       await this.redisPublisher.connect();
 
-      await this.redisPublisher.ft.create('idx:on_call', { 
-        data
-      }, {
-        ON: 'HASH',
-        PREFIX: 'data:on_call'
-      });
+      const options: any = {
+        ON: 'JSON',
+        PREFIX: 'data:on_call:'
+      }
+
+      await this.redisPublisher.ft.create('idx:on_call:', data, options);
     } catch (error: any) {
       if (error.message === 'Index already exists') {
         // @ts-ignore
@@ -41,7 +42,7 @@ export class QueueData {
 
   public async subscriber(): Promise<void> {
     try {
-      await this.redisPublisher.subscribe(this.name, (message: string) => {
+      await this.redisPublisher.subscribe(this.name, (message: any) => {
         // @ts-ignore
         console.log(`Channel1 subscriber collected message: ${message}`);
       }, true);
@@ -63,9 +64,14 @@ export class QueueData {
   public async setData(data: QueueAgentDTO): Promise<void> {
     try {
       this.size = this.size + 1;
-      const index = 'data:on_call:' + data.client;
+      const index: string = 'data:on_call:' + data.client;
       //await this.redisPublisher.hSet('data:on_call:1', {name: 'Fluffy', species: 'cat', age: 3});
-      await this.redisPublisher.hSet(index, data);
+      await this.redisPublisher.hSet(index, {
+        'client': data.client, 
+        'status': data.status, 
+        'deQueuedTime': data.queuedTime, 
+        'queuedTime': data.queuedTime 
+      });
     } catch (error: any) {
       // @ts-ignore
       console.error(error);
@@ -76,7 +82,7 @@ export class QueueData {
     try {
       const index = 'data:on_call:' + data.client;
       //await this.redisPublisher.hSet('data:on_call:1', {name: 'Fluffy', species: 'cat', age: 3});
-      await this.redisPublisher.hDel(index, data);
+      await this.redisPublisher.hDel(index, ['client', 'status', 'deQueuedTime', 'queuedTime']);
       this.size = this.size - 1;
     } catch (error: any) {
       // @ts-ignore
@@ -86,10 +92,10 @@ export class QueueData {
 
   public async searchData(value: string, key: string): Promise<QueueAgentDTO | null> {
     try {
-      const index = '@eventData.CallSid:{' + value + '}';
+      const index = '@CallSid:{' + value + '}';
 
-      const results: QueueAgentDTO = await this.redisPublisher.ft.search(
-        'idx:on_call', 
+      const search = await this.redisPublisher.ft.search(
+        'idx:on_call:', 
         index,
         {
           SORTBY: {
@@ -98,6 +104,13 @@ export class QueueData {
           }
         }
       );
+
+      let results: any = []
+      if (search.total >= 1){
+        for (const i of search.documents) {
+          results.push(i.value)
+        }
+      }
 
       return results;
     } catch (error: any) {

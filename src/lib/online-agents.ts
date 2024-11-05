@@ -83,16 +83,18 @@ export async function removeCompanyAgents(companyId: string, queue: string, user
   console.log(result);
 });*/
 
-export function checkUserOnline(userId: string, callback: any) {
-  redisClient.get(userId, (err: any, result: string) => {
-    if (err) {
-      callback(false);
-      return;
-    }
-    if (result === 'online') {
-      callback(true);
-    } else {
-      callback(false);
-    }
-  });
-}
+// export function checkUserOnline(userId: string, callback: any) {
+//   redisClient.get(userId, (err: any, result: string) => {
+//     if (err) {
+//       callback(false);
+//       return;
+//     }
+//     if (result === 'online') {
+//       callback(true);
+//       return;
+//     } else {
+//       callback(false);
+//       return;
+//     }
+//   });
+// }

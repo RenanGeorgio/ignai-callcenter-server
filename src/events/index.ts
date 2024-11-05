@@ -16,20 +16,20 @@ router.get('/', function (req: Request, res: Response) {
     // @ts-ignore
     console.log(userId);
 
-    if (!userId) {
+    if (!userId || !company) {
         return res.status(400).send({ message: "Missing required fields" });
     }
 
     try {
         const subscriber: QueueSubscriber = { 
-            companyId: company, 
+            companyId: String(company), 
             res 
         };
         
         //subscribers.push(subscriber);
         const data: ISubscriber = {
             sub: subscriber,
-            userId: userId,
+            userId: String(userId),
         }
 
         // @ts-ignore
@@ -44,7 +44,7 @@ router.get('/', function (req: Request, res: Response) {
             if (index !== -1) {
                 subscribers.splice(index, 1);
             }*/
-            subscribersService.unSubscriber(userId);
+            subscribersService.unSubscriber(String(userId));
         });
     } catch (error) {
         return res.sendStatus(500);

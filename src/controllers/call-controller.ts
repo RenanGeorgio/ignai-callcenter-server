@@ -18,8 +18,8 @@ export const handleCall = async (request: Request, response: Response, next: Nex
   const body = request.body;
 
   let dial: any = undefined;
-  let company: Obj | undefined = undefined;
-  let oringinCompany: Obj | undefined = undefined;
+  let company: Obj | null | undefined = undefined;
+  let oringinCompany: Obj | null| undefined = undefined;
   let new_oringin: string = "";
   // @ts-ignore
   console.log(body);
@@ -160,7 +160,7 @@ export const handleOutgoingCall = (request: Request, response: Response, next: N
     dial[attr]({
       url: '/about-to-pickup',
       method: 'POST',
-      statusCallbackEvent: 'initiated ringing answered completed',
+      statusCallbackEvent: ['initiated','ringing','answered','completed'],
       statusCallback: '/call-callback',
       statusCallbackMethod: 'POST'
     }, To);
@@ -231,7 +231,9 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
   // @ts-ignore
   console.log("handleIncomingQueuedCall");
   const { queue, company } = request.query;
-
+  if (!queue || !company){
+    return response.status(400).send({ message: "Missing queue or company identifiers" }); 
+  }
   // @ts-ignore
   console.log(queue);
 
@@ -258,7 +260,7 @@ export const handleIncomingQueuedCall = (request: Request, response: Response, n
       response.send(client.toString());
     }
 
-    pushToQueue(company, queue);
+    pushToQueue(String(company), String(queue));
   }
   catch (error) {
     next(error);
@@ -297,7 +299,7 @@ export const handleDequeueCall = async (request: Request, response: Response, ne
     // @ts-ignore
     console.log(From);
 
-    const user: ClientInQ = await addUserQueue(company, queueId);
+    const user: ClientInQ = await addUserQueue(company, String(queueId));
 
     dial.queue({
       url: `/about-to-connect?queue=${user.queue}&companyId=${company}`,
