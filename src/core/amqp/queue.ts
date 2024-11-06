@@ -24,7 +24,7 @@ export class QueueData {
       await this.redisPublisher.connect();
 
       const options: any = {
-        ON: 'JSON',
+        ON: 'HASH',
         PREFIX: 'data:on_call:'
       }
 
