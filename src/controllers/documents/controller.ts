@@ -52,7 +52,7 @@ export const toConnect = (request: Request, response: Response, next: NextFuncti
       DequeingCallSid 
     }
 
-    connectCurrentCall(companyId, CallSid);
+    connectCurrentCall(String(companyId), CallSid);
     
     // @ts-ignore
     console.log(value);
@@ -121,15 +121,15 @@ export const toWaitRoom = (request: Request, response: Response, next: NextFunct
     }
 
     const notifydata: NotifyAgentDTO = {
-      eventData: eventdata,
-      filterCompanyId: company,
-      filterQueueId: queue ? queue : undefined
+      ...eventdata,
+      filterCompanyId: String(company),
+      filterQueueId: queue ? String(queue) : undefined
     }
 
     // @ts-ignore
     console.log(notifydata);
 
-    enquedeCall(notifydata, client);
+    enquedeCall(notifydata, String(client));
 
     sendEventToClients(notifydata);
 
@@ -166,8 +166,8 @@ export const toActionTake = (request: Request, response: Response, next: NextFun
     }
 
     const notifydata: DisconnectAgentDTO = {
-      eventData: eventdata,
-      filterCompanyId: company,
+      ...eventdata,
+      filterCompanyId: String(company),
     }
 
     if (QueueResult === QUEUE_RESULT_STATUS.HANGUP) {

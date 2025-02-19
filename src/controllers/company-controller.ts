@@ -20,9 +20,7 @@ export const createCompany = async (req: Request, res: Response, next: NextFunct
   }
 
   try {
-    const companyData = await Company.findOne({
-      $elemMatch: { company: company } 
-    });
+    const companyData = await Company.findOne({ company: company });
 
     if (companyData) {
       return res.status(400).send({ message: "Company allready exists" });
@@ -74,9 +72,7 @@ export const findCompanyById = async (req: Request, res: Response, next: NextFun
   const { _id } = req.params;
 
   try {
-    const client = await Company.findOne({
-      $elemMatch: { _id } 
-    });
+    const client = await Company.findById(_id);
 
     if (client) {
       return res.status(200).json(client);

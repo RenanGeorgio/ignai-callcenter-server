@@ -132,6 +132,13 @@
     "@types/connect" "*"
     "@types/node" "*"
 
+"@types/connect-flash@^0.0.40":
+  version "0.0.40"
+  resolved "https://registry.yarnpkg.com/@types/connect-flash/-/connect-flash-0.0.40.tgz#bacae9facb7178bd11acee673fceffde33a62b0e"
+  integrity sha512-vqGDzZ85Kyu/tKdDwXP6JCz4i2Xp3o4bYHSCXbF7XiL1HohogtGXG5pgbgypVbdO3DYqCOHIiZhp2Gh5fP2dDw==
+  dependencies:
+    "@types/express" "*"
+
 "@types/connect@*":
   version "3.4.38"
   resolved "https://registry.npmjs.org/@types/connect/-/connect-3.4.38.tgz"

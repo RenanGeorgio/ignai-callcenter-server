@@ -36,14 +36,14 @@ export class ListenerQueue {
         this.queue, 
         async (data: any) => {
           if (data) {
-            const content = Buffer.from(data.content);
-            console.log("Data received : ", `${content}` );
+            // const content = Buffer.from(data.content);
+            // console.log("Data received : ", `${content}` );
 
-            const value: QueueAgentDTO = JSON.parse(content);
+            const value: QueueAgentDTO = JSON.parse(data.content.toString());
             const company = value.filterCompanyId;
-            const key = value.eventData.CallSid;
+            const key = value.CallSid;
 
-            const result = await this.redisClientStore.hSet(company, key, content);
+            const result = await this.redisClientStore.hSet(company, key, data.content.toString());
             if (result) {
               channel.ack(data);
             }
@@ -89,7 +89,7 @@ export class ListenerQueue {
     }
   }
 
-  public async listCalls(company: string): Promise<string | null> {
+  public async listCalls(company: string): Promise<any> {
     try {
       const res = await this.redisClientStore.hGetAll(company);
 
@@ -132,9 +132,9 @@ export class ListenerQueue {
         await this.redisPublisher.removeData(result);
 
         const company = result.filterCompanyId;
-        const key = result.eventData.CallSid;
+        const key = result.CallSid;
 
-        await this.redisClientStore.hSet(company, key, result);
+        await this.redisClientStore.hSet(company, key, JSON.stringify(result));
       }
       
       return;

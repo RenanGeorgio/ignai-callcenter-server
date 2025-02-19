@@ -12,7 +12,7 @@ import pino from "express-pino-logger";
 import { routes } from "./routes";
 import notifyEvents from "./events";
 import { redisClient } from "./core/redis";
-import * as callWebhook from "./webhook/call";
+import callWebhook from "./webhook/call";
 
 
 const store = new RedisStore({ client: redisClient, prefix: "calls:" });

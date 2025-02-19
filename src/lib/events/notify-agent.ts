@@ -22,21 +22,19 @@ type EventdataType = {
   MaxQueueSize: number | string
 }
 
-export interface NotifyAgentDTO {
-  eventData: EventdataType;
+export interface NotifyAgentDTO extends EventdataType{
   filterCompanyId: string;
   filterQueueId?: string;
 }
 
-export interface DisconnectAgentDTO {
-  eventData: DisconnectDataType;
+export interface DisconnectAgentDTO extends DisconnectDataType {
   filterCompanyId: string;
 }
 
-export function sendEventToClients({ eventData, filterCompanyId, filterQueueId }: NotifyAgentDTO) {
+export function sendEventToClients(event: NotifyAgentDTO) {
   subscribersService.subscribers.forEach(({ userId, sub }: ISubscriber) => {
     const { companyId, queueIds, agentRole, res } = sub;
-
+    const { filterCompanyId, filterQueueId, ...eventData} = event
     // if (companyId === filterCompanyId) {
     //res.write(`data: ${JSON.stringify(eventData)}\n\n`);  // Send data in SSE format
 
@@ -54,10 +52,10 @@ export function sendEventToClients({ eventData, filterCompanyId, filterQueueId }
   });
 }
 
-export function sendDisconnectEventToClients({ eventData, filterCompanyId }: DisconnectAgentDTO, event: string) {
+export function sendDisconnectEventToClients(disconect: DisconnectAgentDTO, event: string) {
   subscribersService.subscribers.forEach(({ userId, sub }: ISubscriber) => {
     const { companyId, queueIds, agentRole, res } = sub;
-
+    const { filterCompanyId, ...eventData } = disconect
     // if (companyId === filterCompanyId) {
     //res.write(`data: ${JSON.stringify(eventData)}\n\n`);  // Send data in SSE format
 
